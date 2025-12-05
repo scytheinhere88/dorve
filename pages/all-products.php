@@ -110,7 +110,7 @@ $categories = $stmt->fetchAll();
 
 // Get available sizes only if tables exist
 if ($variant_tables_exist) {
-    $stmt = $pdo->query("SELECT DISTINCT size FROM variant_stock WHERE size IS NOT NULL ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL')");
+    $stmt = $pdo->query("SELECT DISTINCT size FROM product_variants WHERE size IS NOT NULL AND is_active = 1 ORDER BY FIELD(size, 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL')");
     $sizes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } else {
     $sizes = [];
