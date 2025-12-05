@@ -1029,12 +1029,12 @@ document.addEventListener('keydown', function(e) {
 <section class="brand-story-section">
     <div class="container">
         <div class="story-content">
-            <h2>Dorve House - Toko Baju Online Terpercaya untuk Fashion Kekinian</h2>
+            <h2>Dorve.id - Pusat Fashion Pria & Wanita Indonesia untuk Gaya Kekinian</h2>
             <p>
-                Selamat datang di <strong>Dorve House</strong>, destinasi belanja <strong>baju online</strong> terpercaya yang menghadirkan koleksi <strong>fashion pria</strong>, <strong>fashion wanita</strong>, dan <strong>fashion unisex</strong> terlengkap di Indonesia. Kami memahami bahwa fashion bukan sekadar pakaian, tetapi cara Anda mengekspresikan diri dan kepercayaan diri.
+                Selamat datang di <strong>Dorve.id</strong>, pusat <strong>fashion pria</strong>, <strong>fashion wanita</strong>, dan <strong>fashion unisex</strong> terlengkap di Indonesia. Sebagai <strong>toko baju online terpercaya</strong>, kami menghadirkan koleksi <strong>baju kekinian</strong> yang modern, stylish, dan berkualitas tinggi untuk semua kalangan. Di Dorve.id, fashion bukan sekadar pakaian—ini adalah cara Anda mengekspresikan kepribadian dan kepercayaan diri.
             </p>
             <p>
-                Sejak awal berdiri, Dorve House berkomitmen menjadi <strong>toko baju online kekinian</strong> yang menawarkan <strong>baju trendy</strong> dengan kualitas premium namun tetap terjangkau. Setiap produk dipilih dengan cermat untuk memastikan Anda mendapatkan <strong>baju murah berkualitas</strong> yang tidak mengecewakan.
+                <strong>Dorve.id</strong> berkomitmen menjadi destinasi belanja <strong>outfit terbaru</strong> yang menawarkan <strong>baju trendy</strong> dengan harga terjangkau tanpa mengorbankan kualitas. Dari <strong>dress wanita</strong> elegan, <strong>kemeja pria</strong> formal, hingga <strong>hoodie</strong> dan <strong>kaos</strong> casual, setiap produk dipilih dengan cermat untuk memastikan Anda mendapatkan fashion berkualitas premium dengan harga bersahabat.
             </p>
         </div>
 
