@@ -295,7 +295,63 @@ include __DIR__ . '/../includes/header.php';
     <div class="member-content">
         <h1>My Orders</h1>
 
-        <?php if (empty($orders)): ?>
+        <!-- PENDING ORDERS SECTION -->
+        <?php if (!empty($pendingOrders)): ?>
+        <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 2px solid #F59E0B;">
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #92400E;">
+                ⏰ Pending Payment Orders
+                <span style="background: #EF4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px; margin-left: 8px;">
+                    <?= count($pendingOrders) ?>
+                </span>
+            </h2>
+            <p style="color: #92400E; margin-bottom: 20px;">Complete your payment before the order expires</p>
+            
+            <?php foreach ($pendingOrders as $order): 
+                $timeLeft = strtotime($order['expired_at']) - time();
+                $minutesLeft = floor($timeLeft / 60);
+                $secondsLeft = $timeLeft % 60;
+            ?>
+            <div class="order-card" style="background: white; border: 2px solid #F59E0B; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; right: 0; background: #EF4444; color: white; padding: 8px 16px; border-radius: 0 0 0 12px; font-weight: 700; font-size: 14px;" 
+                     data-order-id="<?= $order['id'] ?>" 
+                     data-expires="<?= strtotime($order['expired_at']) ?>" 
+                     class="countdown-timer">
+                    ⏰ <?= sprintf('%02d:%02d', $minutesLeft, $secondsLeft) ?>
+                </div>
+                
+                <div class="order-header">
+                    <div>
+                        <div style="font-size: 14px; color: #6B7280; margin-bottom: 4px;">
+                            Order #<?= htmlspecialchars($order['order_number']) ?>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #1F2937;">
+                            Rp <?= number_format($order['total_payable_amount'], 0, ',', '.') ?>
+                        </div>
+                        <div style="font-size: 13px; color: #6B7280; margin-top: 4px;">
+                            <?= date('d M Y, H:i', strtotime($order['created_at'])) ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                    <button onclick="resumePayment(<?= $order['id'] ?>, '<?= $order['payment_method'] ?>')" 
+                            class="btn" 
+                            style="flex: 1; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; font-weight: 700; padding: 14px;">
+                        💳 Bayar Sekarang
+                    </button>
+                    <button onclick="if(confirm('Cancel this order?')) cancelOrder(<?= $order['id'] ?>)" 
+                            class="btn" 
+                            style="background: white; color: #EF4444; border: 2px solid #EF4444;">
+                        ✕ Cancel
+                    </button>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- ALL ORDERS -->
+        <?php if (empty($orders) && empty($pendingOrders)): ?>
             <div class="empty-state">
                 <h3>No Orders Yet</h3>
                 <p>You haven't placed any orders. Start shopping to see your orders here.</p>
