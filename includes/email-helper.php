@@ -89,10 +89,10 @@ function sendVerificationEmail($email, $name, $verification_link) {
     $subject = 'Verifikasi Email Anda - Dorve House';
     
     $content = '
-    <h2 style="margin: 0 0 24px; font-size: 24px; color: #1F2937; font-weight: 700;">Selamat Datang, ' . htmlspecialchars($name) . '! 🎉</h2>
+    <h2 style="margin: 0 0 24px; font-size: 24px; color: #1F2937; font-weight: 700;">Selamat Datang di Dorve.id, ' . htmlspecialchars($name) . '! 🎉</h2>
     
     <p style="margin: 0 0 16px; font-size: 16px; color: #374151; line-height: 1.6;">
-        Terima kasih sudah mendaftar di <strong>Dorve House</strong>. Untuk melanjutkan, silakan verifikasi email Anda dengan klik tombol di bawah:
+        Terima kasih sudah bergabung di <strong>Dorve.id</strong> - Pusat Fashion Indonesia! Untuk melanjutkan, silakan verifikasi email Anda dengan klik tombol di bawah:
     </p>
     
     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
