@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Admin Design Preview</title>
+    <link rel="stylesheet" href="/admin/assets/admin-style.css">
+    <style>
+        .preview-container { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        .preview-section { margin: 40px 0; }
+        .preview-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #111827; }
+        .demo-grid { display: grid; gap: 20px; }
+    </style>
+</head>
+<body>
+<div class="preview-container">
+    <h1>🎨 New Admin Design Preview</h1>
+    <p style="color: #6B7280; margin-bottom: 40px;">This is what your new admin panel looks like!</p>
+
+    <!-- Buttons Preview -->
+    <div class="preview-section">
+        <div class="preview-title">Buttons</div>
+        <div class="btn-group">
+            <button class="btn btn-primary">Primary Button</button>
+            <button class="btn btn-success">Success Button</button>
+            <button class="btn btn-danger">Danger Button</button>
+            <button class="btn btn-secondary">Secondary Button</button>
+        </div>
+    </div>
+
+    <!-- Forms Preview -->
+    <div class="preview-section">
+        <div class="preview-title">Form Elements</div>
+        <div class="form-container">
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" placeholder="Enter product name..." value="Premium Linen Dress">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Price (Rp)</label>
+                    <input type="number" value="500000">
+                </div>
+                <div class="form-group">
+                    <label>Discount Price (Rp)</label>
+                    <input type="number" value="450000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea placeholder="Enter description...">Beautiful premium linen dress perfect for any occasion.</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards Preview -->
+    <div class="preview-section">
+        <div class="preview-title">Stat Cards</div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">2</div>
+                <div class="stat-label">Pending Deposits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Approved Deposits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Rejected Deposits</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Preview -->
+    <div class="preview-section">
+        <div class="preview-title">Alerts</div>
+        <div class="alert alert-success">✓ Product added successfully!</div>
+        <div class="alert alert-error">✗ Error: discount_price column not found</div>
+        <div class="alert alert-warning">⚠ Warning: Uploads directory missing</div>
+        <div class="alert alert-info">ℹ Please complete all required fields</div>
+    </div>
+
+    <!-- Table Preview -->
+    <div class="preview-section">
+        <div class="preview-title">Tables</div>
+        <div class="content-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>25 Nov 2025</td>
+                        <td>John Doe</td>
+                        <td>Rp 50,213</td>
+                        <td><span class="badge badge-warning">Pending</span></td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td>24 Nov 2025</td>
+                        <td>Jane Smith</td>
+                        <td>Rp 100,000</td>
+                        <td><span class="badge badge-success">Success</span></td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 60px; padding: 30px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border-radius: 12px; color: white; text-align: center;">
+        <h2 style="margin-bottom: 16px; color: white;">🎉 Design Complete!</h2>
+        <p style="opacity: 0.9; margin-bottom: 24px;">Modern, professional, and fully responsive</p>
+        <a href="/admin/" style="display: inline-block; padding: 12px 32px; background: white; color: #2563EB; border-radius: 8px; text-decoration: none; font-weight: 600;">Go to Admin Panel</a>
+    </div>
+</div>
+</body>
+</html>

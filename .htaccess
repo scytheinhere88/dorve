@@ -1,0 +1,15 @@
+# PHP Upload Settings
+php_value upload_max_filesize 128M
+php_value post_max_size 128M
+php_value max_execution_time 300
+php_value max_input_time 300
+php_value memory_limit 256M
+
+# Enable .user.ini
+suPHP_ConfigPath /home/username/public_html
+
+# Security
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+</IfModule>

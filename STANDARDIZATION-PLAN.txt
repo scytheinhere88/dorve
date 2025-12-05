@@ -1,0 +1,196 @@
+================================================================
+📋 SIDEBAR STANDARDIZATION PLAN
+================================================================
+
+PROBLEM:
+========
+
+1. ADMIN PAGES - Different sidebars:
+   ✅ NEW sidebar (product, settings, deposits, referrals, promotion)
+   ❌ OLD sidebar (categories, orders, users, vouchers, shipping, pages)
+
+2. MEMBER PAGES - Different sidebars:
+   ✅ NEW sidebar (dashboard, referral) - Has "🎁 My Referrals"
+   ❌ OLD sidebar (wallet, orders, reviews, profile, address, password) - Missing referrals
+
+================================================================
+STANDARD MEMBER SIDEBAR (from dashboard.php):
+================================================================
+
+<ul class="sidebar-nav">
+    <li><a href="/member/dashboard.php">Dashboard</a></li>
+    <li><a href="/member/wallet.php">My Wallet</a></li>
+    <li><a href="/member/orders.php">My Orders</a></li>
+    <li><a href="/member/referral.php">🎁 My Referrals</a></li>
+    <li><a href="/member/reviews.php">My Reviews</a></li>
+    <li><a href="/member/profile.php">Edit Profile</a></li>
+    <li><a href="/member/address.php">Address Book</a></li>
+    <li><a href="/member/password.php">Change Password</a></li>
+</ul>
+
+KEY FEATURES:
+- Has "🎁 My Referrals" menu item
+- Uses "My Reviews" (not just "Reviews")
+- Proper order: Dashboard → Wallet → Orders → Referrals → Reviews → Profile → Address → Password
+
+================================================================
+STANDARD ADMIN SIDEBAR (from admin-header.php):
+================================================================
+
+Uses: include __DIR__ . '/../includes/admin-header.php';
+
+NO inline HTML or custom sidebar!
+
+Includes:
+- 📊 Dashboard
+- 🛍️ Produk
+- 📁 Kategori
+- 📦 Pesanan
+- 👥 Pengguna
+- 💰 Deposit Wallet
+- 🤝 Referral
+- 🎫 Voucher
+- 🚚 Pengiriman
+- 📢 Promosi & Banner
+- PENGATURAN section:
+  - ⚙️ Pengaturan Umum
+  - 💳 Payment Gateway
+  - 🏦 Bank Accounts
+  - 🎁 Referral Settings
+  - 🔌 API & Integrasi
+  - 📄 Halaman CMS
+
+================================================================
+FILES TO UPDATE:
+================================================================
+
+ADMIN PAGES (Replace inline sidebar with admin-header.php):
+============================================================
+
+1. /admin/index.php ❌ OLD (needs update)
+2. /admin/categories/index.php ❌ OLD (needs update)
+3. /admin/orders/index.php ❌ OLD (needs update)
+4. /admin/users/index.php ❌ OLD (needs update)
+5. /admin/vouchers/index.php ❌ OLD (needs update)
+6. /admin/shipping/index.php ❌ OLD (needs update)
+7. /admin/pages/index.php ❌ OLD (needs update)
+
+Already updated:
+8. /admin/products/index.php ✅ NEW
+9. /admin/deposits/index.php ✅ NEW
+10. /admin/referrals/index.php ✅ NEW
+11. /admin/promotion/index.php ✅ NEW
+12. /admin/settings/*.php ✅ NEW
+
+MEMBER PAGES (Update sidebar menu):
+====================================
+
+1. /member/dashboard.php ✅ NEW (has referrals)
+2. /member/referral.php ✅ NEW (has referrals)
+3. /member/wallet.php ❌ OLD (missing referrals, duplicate "My Wallet")
+4. /member/orders.php ❌ OLD (needs check)
+5. /member/reviews.php ❌ OLD (needs check)
+6. /member/profile.php ❌ OLD (needs check)
+7. /member/address.php ❌ OLD (needs check)
+8. /member/password.php ❌ OLD (needs check)
+
+================================================================
+HOW TO FIX:
+================================================================
+
+ADMIN PAGES:
+============
+
+OLD CODE (remove):
+------------------
+<!DOCTYPE html>
+<html>
+<head>
+    ... custom styles ...
+</head>
+<body>
+    <div class="admin-sidebar">
+        ... custom sidebar ...
+    </div>
+    <div class="admin-content">
+
+NEW CODE (replace with):
+------------------------
+<?php
+$page_title = 'Page Name - Admin';
+include __DIR__ . '/../includes/admin-header.php';
+?>
+
+<!-- Rest of page content -->
+
+<?php include __DIR__ . '/../includes/admin-footer.php'; ?>
+
+MEMBER PAGES:
+=============
+
+OLD SIDEBAR (in each file):
+---------------------------
+<li><a href="/member/dashboard.php">Dashboard</a></li>
+<li><a href="/member/wallet.php">My Wallet</a></li>
+<li><a href="/member/wallet.php">My Wallet</a></li> <!-- DUPLICATE -->
+<li><a href="/member/orders.php">My Orders</a></li>
+<li><a href="/member/reviews.php">Reviews</a></li> <!-- Missing "My" -->
+<li><a href="/member/profile.php">Edit Profile</a></li>
+<li><a href="/member/address.php">Address Book</a></li>
+<li><a href="/member/password.php">Change Password</a></li>
+<!-- Missing referrals! -->
+
+NEW SIDEBAR (standardized):
+---------------------------
+<li><a href="/member/dashboard.php">Dashboard</a></li>
+<li><a href="/member/wallet.php">My Wallet</a></li>
+<li><a href="/member/orders.php">My Orders</a></li>
+<li><a href="/member/referral.php">🎁 My Referrals</a></li> <!-- ADDED -->
+<li><a href="/member/reviews.php">My Reviews</a></li> <!-- Fixed -->
+<li><a href="/member/profile.php">Edit Profile</a></li>
+<li><a href="/member/address.php">Address Book</a></li>
+<li><a href="/member/password.php">Change Password</a></li>
+
+================================================================
+PRIORITY ORDER:
+================================================================
+
+PRIORITY 1 - ADMIN (Fixes missing menus):
+==========================================
+1. admin/index.php
+2. admin/categories/index.php
+3. admin/orders/index.php
+4. admin/users/index.php
+5. admin/vouchers/index.php
+6. admin/shipping/index.php
+7. admin/pages/index.php
+
+PRIORITY 2 - MEMBER (Adds referral menu):
+==========================================
+1. member/wallet.php
+2. member/orders.php
+3. member/reviews.php
+4. member/profile.php
+5. member/address.php
+6. member/password.php
+
+================================================================
+EXPECTED RESULTS:
+================================================================
+
+AFTER ADMIN FIX:
+----------------
+✅ All admin pages have same sidebar
+✅ All menus visible everywhere
+✅ No confusion about which page you're on
+✅ Professional consistent look
+
+AFTER MEMBER FIX:
+-----------------
+✅ All member pages have same sidebar
+✅ Referral menu visible everywhere
+✅ No duplicate "My Wallet" entries
+✅ Consistent naming "My Reviews" (not just "Reviews")
+✅ Professional consistent look
+
+================================================================
