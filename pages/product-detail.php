@@ -10,7 +10,7 @@ if (empty($slug)) {
 $stmt = $pdo->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug
                        FROM products p
                        LEFT JOIN categories c ON p.category_id = c.id
-                       WHERE p.slug = ? AND p.status = 'published'");
+                       WHERE p.slug = ? AND p.is_active = 1");
 $stmt->execute([$slug]);
 $product = $stmt->fetch();
 
@@ -44,7 +44,7 @@ if (!empty($reviews)) {
 
 $stmt = $pdo->prepare("SELECT p.*, pi.image_path FROM products p
                        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
-                       WHERE p.category_id = ? AND p.id != ? AND p.status = 'published'
+                       WHERE p.category_id = ? AND p.id != ? AND p.is_active = 1
                        LIMIT 4");
 $stmt->execute([$product['category_id'], $product['id']]);
 $related_products = $stmt->fetchAll();
