@@ -14,7 +14,16 @@ class BiteshipConfig {
         
         global $pdo;
         
-        $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'biteship_%' OR setting_key LIKE 'store_%'");
+        // Check which column name is used
+        try {
+            $checkStmt = $pdo->query("DESCRIBE settings");
+            $columns = array_column($checkStmt->fetchAll(), 'Field');
+            $valueColumn = in_array('setting_value', $columns) ? 'setting_value' : 'value';
+        } catch (Exception $e) {
+            $valueColumn = 'setting_value'; // default
+        }
+        
+        $stmt = $pdo->query("SELECT setting_key, $valueColumn as setting_value FROM settings WHERE setting_key LIKE 'biteship_%' OR setting_key LIKE 'store_%'");
         $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         
         self::$config = [
