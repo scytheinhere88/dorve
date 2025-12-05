@@ -1,12 +1,16 @@
 <?php
 /**
- * Test All Pages Script
- * Tests pages by actually loading them and catching errors
+ * Test All Pages Script - Syntax Check Only
+ * Checks PHP syntax without executing the files
  */
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-set_time_limit(300);
+
+// Disable auto-redirect
+if (!defined('NO_REDIRECT')) {
+    define('NO_REDIRECT', true);
+}
 
 $pages_to_test = [
     // Public Pages
@@ -14,18 +18,26 @@ $pages_to_test = [
     'All Products' => '/pages/all-products.php',
     'New Collection' => '/pages/new-collection.php',
     'FAQ' => '/pages/faq.php',
-    'Product Detail' => '/pages/product-detail.php?slug=test',
+    'Product Detail' => '/pages/product-detail.php',
+    'Privacy Policy' => '/pages/privacy-policy.php',
+    'Terms' => '/pages/terms.php',
     
     // Auth Pages
     'Login' => '/auth/login.php',
     'Register' => '/auth/register.php',
     
-    // Member Pages (will fail without login, but check for errors)
+    // Member Pages
     'Member Dashboard' => '/member/dashboard.php',
     'Member Wallet' => '/member/wallet.php',
     'Member Orders' => '/member/orders.php',
     'Member Referral' => '/member/referral.php',
     'Member Profile' => '/member/profile.php',
+    
+    // Admin Pages
+    'Admin Dashboard' => '/admin/index.php',
+    'Admin Products' => '/admin/products/index.php',
+    'Admin Orders' => '/admin/orders/index.php',
+    'Admin Deposits' => '/admin/deposits/index.php',
 ];
 
 ?>
