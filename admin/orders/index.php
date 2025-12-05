@@ -334,32 +334,47 @@ include __DIR__ . '/../includes/admin-header.php';
     <h1>Kelola Pesanan</h1>
 </div>
 
-<div class="content-container">
-    <div class="table-container">
-        <table>
-            <thead>
+<!-- Orders Table -->
+<div class="order-table">
+    <table>
+        <thead>
+            <tr>
+                <th width="40"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+                <th>Order Number / ID</th>
+                <th>Customer</th>
+                <th>Tujuan</th>
+                <th>Kurir</th>
+                <th>Tracking</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($orders)): ?>
                 <tr>
-                    <th>No. Pesanan</th>
-                    <th>Tanggal</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Payment</th>
-                    <th>Shipping</th>
-                    <th>Actions</th>
+                    <td colspan="10" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <p>Tidak ada pesanan ditemukan</p>
+                        <?php if (!empty($search)): ?>
+                            <button onclick="clearSearch()" style="margin-top: 12px; padding: 8px 16px; background: #3B82F6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Tampilkan Semua Order
+                            </button>
+                        <?php endif; ?>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($orders)): ?>
+            <?php else: ?>
+                <?php foreach ($orders as $order): ?>
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: #6B7280;">
-                            Belum ada pesanan
+                        <td>
+                            <input type="checkbox" class="order-checkbox" value="<?php echo $order['id']; ?>" 
+                                   data-has-waybill="<?php echo !empty($order['waybill_id']) ? '1' : '0'; ?>">
                         </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td><strong><?php echo htmlspecialchars($order['order_number']); ?></strong></td>
-                            <td><?php echo date('d M Y', strtotime($order['created_at'])); ?></td>
+                        <td>
+                            <strong><?php echo htmlspecialchars($order['order_number']); ?></strong>
+                            <span class="order-id-display">Order ID: #<?php echo $order['id']; ?></span>
+                        </td>
                             <td>
                                 <div><?php echo htmlspecialchars($order['customer_name']); ?></div>
                                 <small style="color: #6B7280;"><?php echo htmlspecialchars($order['customer_email']); ?></small>
