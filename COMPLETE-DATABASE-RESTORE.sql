@@ -146,11 +146,11 @@ CREATE TABLE `product_variants` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `product_id` (`product_id`),
+  KEY `idx_product` (`product_id`),
   KEY `idx_stock` (`stock`),
   KEY `idx_active` (`is_active`),
   UNIQUE KEY `unique_variant` (`product_id`, `color`, `size`),
-  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_variants_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
