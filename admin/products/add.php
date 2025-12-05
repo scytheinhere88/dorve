@@ -240,14 +240,19 @@ include __DIR__ . '/../includes/admin-header.php';
         </div>
     </div>
 
-    <!-- Product Image -->
+    <!-- Product Images -->
     <div class="form-card">
-        <h2>Product Image</h2>
+        <h2>Product Images (1-5 images)</h2>
 
         <div class="form-group">
-            <label for="image">Main Product Image *</label>
-            <input type="file" id="image" name="image" accept="image/*">
-            <small>Recommended size: 800x800px, Max 5MB</small>
+            <label for="images">Upload Product Images *</label>
+            <input type="file" id="images" name="images[]" accept="image/*" multiple>
+            <small>Upload 1-5 images. First image will be the main product image. Recommended size: 800x800px, Max 5MB per image</small>
+        </div>
+        
+        <div id="imagePreviewContainer" class="image-preview-grid" style="margin-top: 20px; display: none;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Selected Images:</h4>
+            <div id="imagePreview" class="image-preview"></div>
         </div>
     </div>
 
