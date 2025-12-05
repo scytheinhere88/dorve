@@ -488,6 +488,29 @@ document.getElementById('shipping_aggregator').addEventListener('change', functi
 // Trigger on page load
 document.getElementById('shipping_aggregator').dispatchEvent(new Event('change'));
 
+// Test Biteship Connection
+function testBiteshipConnection() {
+    const resultDiv = document.getElementById('biteshipTestResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<div class="alert alert-info">🔄 Testing Biteship API connection...</div>';
+
+    const form = new FormData();
+    form.append('action', 'test_biteship');
+
+    fetch(window.location.href, {
+        method: 'POST',
+        body: form
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Reload page to show result
+        window.location.reload();
+    })
+    .catch(error => {
+        resultDiv.innerHTML = '<div class="alert alert-error">❌ Connection test failed: ' + error.message + '</div>';
+    });
+}
+
 // Test Midtrans API
 function testMidtransAPI() {
     const resultDiv = document.getElementById('midtransTestResult');
