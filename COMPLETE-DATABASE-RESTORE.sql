@@ -60,7 +60,7 @@ CREATE TABLE `users` (
   `address` text DEFAULT NULL,
   `role` enum('customer','admin') DEFAULT 'customer',
   `wallet_balance` decimal(15,2) DEFAULT 0.00,
-  `referral_code` VARCHAR(20) UNIQUE DEFAULT NULL,
+  `referral_code` VARCHAR(20) DEFAULT NULL,
   `referred_by` INT(11) DEFAULT NULL,
   `total_referrals` INT(11) DEFAULT 0,
   `tier` ENUM('bronze', 'silver', 'gold', 'platinum', 'vvip') DEFAULT 'bronze',
@@ -71,8 +71,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `referral_code` (`referral_code`),
   KEY `idx_role` (`role`),
-  KEY `idx_email` (`email`),
-  KEY `idx_referral_code` (`referral_code`),
   KEY `idx_referred_by` (`referred_by`),
   KEY `idx_tier` (`tier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
