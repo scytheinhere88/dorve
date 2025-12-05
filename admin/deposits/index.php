@@ -9,14 +9,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['dep
     $admin_notes = $_POST['admin_notes'] ?? '';
     
     if ($action === 'approve') {
-        $stmt = $pdo->prepare("UPDATE wallet_topups SET payment_status = 'success', admin_notes = ?, approved_by = ?, approved_at = NOW() WHERE id = ?");
-        $stmt->execute([$admin_notes, getCurrentUser()['id'], $deposit_id]);
+        $stmt = $pdo->prepare("UPDATE topups SET status = 'completed', notes = ?, completed_at = NOW() WHERE id = ?");
+        $stmt->execute([$admin_notes, $deposit_id]);
         
-        $topup = $pdo->query("SELECT * FROM wallet_topups WHERE id = $deposit_id")->fetch();
+        $topup = $pdo->query("SELECT * FROM topups WHERE id = $deposit_id")->fetch();
         $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?")->execute([$topup['amount'], $topup['user_id']]);
     } elseif ($action === 'reject') {
-        $stmt = $pdo->prepare("UPDATE wallet_topups SET payment_status = 'failed', admin_notes = ?, approved_by = ?, approved_at = NOW() WHERE id = ?");
-        $stmt->execute([$admin_notes, getCurrentUser()['id'], $deposit_id]);
+        $stmt = $pdo->prepare("UPDATE topups SET status = 'failed', notes = ?, completed_at = NOW() WHERE id = ?");
+        $stmt->execute([$admin_notes, $deposit_id]);
     }
     redirect('/admin/deposits/');
 }
