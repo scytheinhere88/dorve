@@ -77,24 +77,22 @@ $products = $stmt->fetchAll();
 // Get available sizes and stock for each product (only if tables exist)
 if ($variant_tables_exist) {
     foreach ($products as &$product) {
-        // Get total stock
+        // Get total stock from product_variants
         $stmt = $pdo->prepare("
-            SELECT COALESCE(SUM(vs.stock), 0) as total_stock
+            SELECT COALESCE(SUM(pv.stock), 0) as total_stock
             FROM product_variants pv
-            LEFT JOIN variant_stock vs ON pv.id = vs.variant_id
-            WHERE pv.product_id = ?
+            WHERE pv.product_id = ? AND pv.is_active = 1
         ");
         $stmt->execute([$product['id']]);
         $result = $stmt->fetch();
-        $product['total_stock'] = $result['total_stock'] ?? 0;
+        $product['total_stock'] = $result['total_stock'] ?? $product['stock'] ?? 0;
 
         // Get available sizes
         $stmt = $pdo->prepare("
-            SELECT DISTINCT vs.size
+            SELECT DISTINCT pv.size
             FROM product_variants pv
-            JOIN variant_stock vs ON pv.id = vs.variant_id
-            WHERE pv.product_id = ? AND vs.stock > 0
-            ORDER BY FIELD(vs.size, 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'One Size')
+            WHERE pv.product_id = ? AND pv.stock > 0 AND pv.is_active = 1
+            ORDER BY FIELD(pv.size, 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', 'One Size')
         ");
         $stmt->execute([$product['id']]);
         $product['available_sizes'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
