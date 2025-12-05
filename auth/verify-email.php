@@ -8,53 +8,49 @@ $error = '';
 if ($token) {
     // Find user with this token
     $stmt = $pdo->prepare("
-        SELECT id, name, email, email_verified, email_verification_sent_at
+        SELECT id, name, email, email_verified, email_verification_expiry
         FROM users
         WHERE email_verification_token = ?
-        AND email_verified = 0
     ");
     $stmt->execute([$token]);
     $user = $stmt->fetch();
 
     if ($user) {
-        // Check if token is not expired (24 hours)
-        $sentAt = new DateTime($user['email_verification_sent_at']);
-        $now = new DateTime();
-        $diff = $now->diff($sentAt);
-        $hoursElapsed = ($diff->days * 24) + $diff->h;
-
-        if ($hoursElapsed <= 24) {
+        // Check if already verified
+        if ($user['email_verified'] == 1) {
+            $error = 'Email sudah terverifikasi sebelumnya. Silakan login.';
+        } 
+        // Check if token expired
+        elseif ($user['email_verification_expiry'] && strtotime($user['email_verification_expiry']) < time()) {
+            $error = 'Link verifikasi sudah kadaluarsa (lebih dari 24 jam). Silakan minta link verifikasi baru dari halaman login.';
+        } 
+        else {
             // Token is valid, verify the email
-            $stmt = $pdo->prepare("
-                UPDATE users
-                SET email_verified = 1,
-                    email_verified_at = NOW(),
-                    email_verification_token = NULL
-                WHERE id = ?
-            ");
-            $stmt->execute([$user['id']]);
+            try {
+                $stmt = $pdo->prepare("
+                    UPDATE users
+                    SET email_verified = 1,
+                        email_verification_token = NULL,
+                        email_verification_expiry = NULL,
+                        verification_attempts = 0
+                    WHERE id = ?
+                ");
+                $stmt->execute([$user['id']]);
 
-            // Log the verification
-            $stmt = $pdo->prepare("
-                UPDATE email_verification_log
-                SET verified_at = NOW(),
-                    ip_address = ?,
-                    user_agent = ?
-                WHERE user_id = ? AND token = ?
-            ");
-            $stmt->execute([
-                $_SERVER['REMOTE_ADDR'] ?? null,
-                $_SERVER['HTTP_USER_AGENT'] ?? null,
-                $user['id'],
-                $token
-            ]);
-
-            $success = true;
-        } else {
-            $error = 'Link verifikasi sudah kadaluarsa (lebih dari 24 jam). Silakan minta link verifikasi baru.';
+                $success = true;
+                
+                // Auto login after verification
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = 'customer';
+            } catch (Exception $e) {
+                error_log('Verification error: ' . $e->getMessage());
+                $error = 'Terjadi kesalahan saat verifikasi. Silakan coba lagi.';
+            }
         }
     } else {
-        $error = 'Link verifikasi tidak valid atau email sudah terverifikasi.';
+        $error = 'Link verifikasi tidak valid.';
     }
 } else {
     $error = 'Token verifikasi tidak ditemukan.';
