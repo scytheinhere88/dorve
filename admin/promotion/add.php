@@ -81,7 +81,7 @@ include __DIR__ . '/../includes/admin-header.php';
     <div class="form-group">
         <label>Banner Image *</label>
         <input type="file" name="image" accept="image/*" required>
-        <small>Recommended size: 1920x600px (Desktop Banner)</small>
+        <small>Recommended size: 1920x600px (Desktop Banner), Max: 128MB</small>
     </div>
     
     <div class="form-group">
