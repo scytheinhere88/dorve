@@ -106,12 +106,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get current settings
 $settings = [];
 try {
-    $stmt = $pdo->query("SELECT setting_key, value FROM settings");
+    $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
     while ($row = $stmt->fetch()) {
-        $settings[$row['setting_key']] = $row['value'];
+        $settings[$row['setting_key']] = $row['setting_value'];
     }
 } catch (PDOException $e) {
     // Settings table might not exist
+}
+
+// Default values
+$defaults = [
+    'biteship_enabled' => '0',
+    'biteship_environment' => 'production',
+    'biteship_default_couriers' => 'jne,jnt,sicepat,anteraja,idexpress',
+    'store_city' => 'Jakarta Selatan',
+    'store_province' => 'DKI Jakarta'
+];
+foreach ($defaults as $key => $value) {
+    if (!isset($settings[$key])) {
+        $settings[$key] = $value;
+    }
 }
 
 include __DIR__ . '/../includes/admin-header.php';
