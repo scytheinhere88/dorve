@@ -83,7 +83,7 @@ include __DIR__ . '/../includes/admin-header.php';
         <tbody>
             <?php if (empty($banners)): ?>
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 60px;">
+                    <td colspan="7" style="text-align: center; padding: 60px;">
                         <div style="color: #9CA3AF; font-size: 48px; margin-bottom: 16px;">📢</div>
                         <p style="color: #6B7280; margin-bottom: 16px;">No banners yet. Create your first banner!</p>
                         <a href="/admin/promotion/add.php" class="btn btn-primary">+ Add First Banner</a>
