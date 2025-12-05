@@ -448,7 +448,8 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="order-summary">
-        <h3>Order Summary</h3>
+        <h3>💰 Order Summary</h3>
+        
         <?php foreach ($cart_items as $item): ?>
             <div class="summary-item">
                 <span><?php echo htmlspecialchars($item['name']); ?> x <?php echo $item['qty']; ?></span>
@@ -458,11 +459,28 @@ include __DIR__ . '/../includes/header.php';
 
         <div class="summary-item">
             <span>Subtotal</span>
-            <span><?php echo formatPrice($subtotal); ?></span>
+            <span id="subtotal-display"><?php echo formatPrice($subtotal); ?></span>
         </div>
         <div class="summary-item">
             <span>Shipping</span>
             <span id="shipping-cost">-</span>
+        </div>
+        
+        <!-- Voucher Section -->
+        <div class="voucher-section">
+            <button type="button" class="btn-voucher" onclick="openVoucherModal()">
+                🎟️ <span>Apply Voucher</span>
+            </button>
+            <div id="applied-vouchers-container"></div>
+        </div>
+        
+        <div class="summary-item" id="discount-row" style="display: none; color: #10B981;">
+            <span>💰 Voucher Discount</span>
+            <span id="discount-amount">-</span>
+        </div>
+        <div class="summary-item" id="free-shipping-row" style="display: none; color: #10B981;">
+            <span>🚚 Free Shipping</span>
+            <span id="free-shipping-amount">-</span>
         </div>
 
         <div class="summary-total">
@@ -471,5 +489,275 @@ include __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </div>
+
+<!-- VOUCHER MODAL 💎 -->
+<div class="voucher-modal" id="voucherModal">
+    <div class="voucher-modal-content">
+        <div class="voucher-modal-header">
+            <span class="close-modal" onclick="closeVoucherModal()">&times;</span>
+            <h2>🎟️ Select Your Vouchers</h2>
+            <p>Choose up to 2 vouchers: 1 Free Shipping + 1 Discount</p>
+        </div>
+        
+        <div class="voucher-modal-body">
+            <div class="voucher-type-section" id="free-shipping-section">
+                <div class="voucher-type-title">
+                    <span>🚚</span> Free Shipping Vouchers
+                </div>
+                <div class="voucher-grid" id="free-shipping-vouchers">
+                    <p style="color: #6B7280; text-align: center; padding: 40px;">Loading vouchers...</p>
+                </div>
+            </div>
+            
+            <div class="voucher-type-section" id="discount-section">
+                <div class="voucher-type-title">
+                    <span>💰</span> Discount Vouchers
+                </div>
+                <div class="voucher-grid" id="discount-vouchers">
+                    <p style="color: #6B7280; text-align: center; padding: 40px;">Loading vouchers...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <div style="color: #6B7280; font-size: 14px;">
+                Selected: <strong id="selected-count">0</strong> / 2 vouchers
+            </div>
+            <button type="button" class="btn-apply-vouchers" onclick="applySelectedVouchers()">
+                ✨ Apply Vouchers
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global state
+const selectedVouchers = {
+    free_shipping: null,
+    discount: null
+};
+let availableVouchers = {
+    free_shipping: [],
+    discount: []
+};
+const subtotal = <?php echo $subtotal; ?>;
+let currentShipping = 0;
+
+// Open modal and load vouchers
+function openVoucherModal() {
+    document.getElementById('voucherModal').classList.add('show');
+    loadAvailableVouchers();
+}
+
+function closeVoucherModal() {
+    document.getElementById('voucherModal').classList.remove('show');
+}
+
+// Load vouchers from API
+function loadAvailableVouchers() {
+    fetch(`/api/vouchers/get-available.php?cart_total=${subtotal}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                availableVouchers = data.vouchers;
+                renderVouchers();
+            }
+        })
+        .catch(e => console.error('Error loading vouchers:', e));
+}
+
+function renderVouchers() {
+    // Render free shipping vouchers
+    const freeShippingContainer = document.getElementById('free-shipping-vouchers');
+    if (availableVouchers.free_shipping.length === 0) {
+        freeShippingContainer.innerHTML = '<p style="color: #6B7280; text-align: center; padding: 40px;">No free shipping vouchers available</p>';
+    } else {
+        freeShippingContainer.innerHTML = availableVouchers.free_shipping.map(v => `
+            <div class="voucher-card-mini ${selectedVouchers.free_shipping?.id === v.id ? 'selected' : ''}" 
+                 onclick="selectVoucher('free_shipping', ${JSON.stringify(v).replace(/"/g, '&quot;')})">
+                <div class="voucher-card-header-mini free-shipping">
+                    <div class="voucher-code-mini">${v.code}</div>
+                    <div class="voucher-name-mini">${v.name}</div>
+                </div>
+                <div class="voucher-card-body-mini">
+                    <div class="voucher-value-mini">
+                        FREE SHIPPING
+                        ${v.discount_value ? `<span style="font-size: 14px; color: #6B7280;">(Max: Rp ${formatNumber(v.discount_value)})</span>` : ''}
+                    </div>
+                    ${v.min_purchase ? `<div class="voucher-condition-mini">📦 Min: Rp ${formatNumber(v.min_purchase)}</div>` : ''}
+                    <div class="voucher-condition-mini">🔢 ${v.max_usage - v.usage_count} uses left</div>
+                    <div class="voucher-condition-mini">📅 Valid until ${new Date(v.valid_until).toLocaleDateString('id-ID')}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Render discount vouchers
+    const discountContainer = document.getElementById('discount-vouchers');
+    if (availableVouchers.discount.length === 0) {
+        discountContainer.innerHTML = '<p style="color: #6B7280; text-align: center; padding: 40px;">No discount vouchers available</p>';
+    } else {
+        discountContainer.innerHTML = availableVouchers.discount.map(v => {
+            let valueText = '';
+            if (v.discount_type === 'percentage') {
+                valueText = `${v.discount_value}% OFF`;
+                if (v.max_discount) valueText += ` <span style="font-size: 14px; color: #6B7280;">(Max: Rp ${formatNumber(v.max_discount)})</span>`;
+            } else {
+                valueText = `Rp ${formatNumber(v.discount_value)} OFF`;
+            }
+            
+            return `
+                <div class="voucher-card-mini ${selectedVouchers.discount?.id === v.id ? 'selected' : ''}" 
+                     onclick="selectVoucher('discount', ${JSON.stringify(v).replace(/"/g, '&quot;')})">
+                    <div class="voucher-card-header-mini">
+                        <div class="voucher-code-mini">${v.code}</div>
+                        <div class="voucher-name-mini">${v.name}</div>
+                    </div>
+                    <div class="voucher-card-body-mini">
+                        <div class="voucher-value-mini">${valueText}</div>
+                        ${v.min_purchase ? `<div class="voucher-condition-mini">📦 Min: Rp ${formatNumber(v.min_purchase)}</div>` : ''}
+                        <div class="voucher-condition-mini">🔢 ${v.max_usage - v.usage_count} uses left</div>
+                        <div class="voucher-condition-mini">📅 Valid until ${new Date(v.valid_until).toLocaleDateString('id-ID')}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function selectVoucher(type, voucher) {
+    selectedVouchers[type] = voucher;
+    renderVouchers();
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const count = (selectedVouchers.free_shipping ? 1 : 0) + (selectedVouchers.discount ? 1 : 0);
+    document.getElementById('selected-count').textContent = count;
+}
+
+function applySelectedVouchers() {
+    // Update applied vouchers display
+    const container = document.getElementById('applied-vouchers-container');
+    container.innerHTML = '';
+    
+    if (selectedVouchers.free_shipping) {
+        container.innerHTML += `
+            <div class="applied-voucher">
+                <div>
+                    <span class="code">${selectedVouchers.free_shipping.code}</span>
+                    <div style="font-size: 11px; opacity: 0.8;">Free Shipping</div>
+                </div>
+                <span class="remove-voucher" onclick="removeVoucher('free_shipping')">✕</span>
+            </div>
+        `;
+    }
+    
+    if (selectedVouchers.discount) {
+        container.innerHTML += `
+            <div class="applied-voucher">
+                <div>
+                    <span class="code">${selectedVouchers.discount.code}</span>
+                    <div style="font-size: 11px; opacity: 0.8;">Discount</div>
+                </div>
+                <span class="remove-voucher" onclick="removeVoucher('discount')">✕</span>
+            </div>
+        `;
+    }
+    
+    // Recalculate totals
+    recalculateTotal();
+    closeVoucherModal();
+}
+
+function removeVoucher(type) {
+    selectedVouchers[type] = null;
+    applySelectedVouchers();
+}
+
+function recalculateTotal() {
+    let total = subtotal + currentShipping;
+    let discountAmount = 0;
+    let freeShippingAmount = 0;
+    
+    // Apply discount voucher
+    if (selectedVouchers.discount) {
+        const v = selectedVouchers.discount;
+        if (v.discount_type === 'percentage') {
+            discountAmount = (subtotal * v.discount_value) / 100;
+            if (v.max_discount && discountAmount > v.max_discount) {
+                discountAmount = v.max_discount;
+            }
+        } else {
+            discountAmount = v.discount_value;
+        }
+        total -= discountAmount;
+    }
+    
+    // Apply free shipping voucher
+    if (selectedVouchers.free_shipping) {
+        freeShippingAmount = currentShipping;
+        if (selectedVouchers.free_shipping.discount_value && freeShippingAmount > selectedVouchers.free_shipping.discount_value) {
+            freeShippingAmount = selectedVouchers.free_shipping.discount_value;
+        }
+        total -= freeShippingAmount;
+    }
+    
+    // Update display
+    if (discountAmount > 0) {
+        document.getElementById('discount-row').style.display = 'flex';
+        document.getElementById('discount-amount').textContent = '- ' + formatPrice(discountAmount);
+    } else {
+        document.getElementById('discount-row').style.display = 'none';
+    }
+    
+    if (freeShippingAmount > 0) {
+        document.getElementById('free-shipping-row').style.display = 'flex';
+        document.getElementById('free-shipping-amount').textContent = '- ' + formatPrice(freeShippingAmount);
+    } else {
+        document.getElementById('free-shipping-row').style.display = 'none';
+    }
+    
+    document.getElementById('total').textContent = formatPrice(Math.max(0, total));
+    
+    // Update hidden form fields
+    document.getElementById('voucher_discount_input').value = discountAmount;
+    document.getElementById('voucher_free_shipping_input').value = freeShippingAmount > 0 ? 1 : 0;
+    const codes = [selectedVouchers.free_shipping?.code, selectedVouchers.discount?.code].filter(Boolean).join(',');
+    document.getElementById('voucher_codes_input').value = codes;
+}
+
+// Shipping cost update
+document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const selectedMethod = <?php echo json_encode($shipping_methods); ?>.find(m => m.id == this.value);
+        currentShipping = parseFloat(selectedMethod.cost) || 0;
+        document.getElementById('shipping-cost').textContent = formatPrice(currentShipping);
+        recalculateTotal();
+    });
+});
+
+// Payment method selection visual
+document.querySelectorAll('.payment-method').forEach(method => {
+    method.addEventListener('click', function() {
+        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input[type="radio"]').checked = true;
+    });
+});
+
+function formatPrice(amount) {
+    return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(amount));
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat('id-ID').format(num);
+}
+
+// Close modal on outside click
+document.getElementById('voucherModal').addEventListener('click', function(e) {
+    if (e.target === this) closeVoucherModal();
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
