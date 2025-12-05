@@ -212,6 +212,46 @@ try {
     
     echo "</div>";
     
+    // 6. Create print_batches table
+    echo "<div class='box'><h2>6. Print Batches Table</h2>";
+    
+    $tables = $pdo->query("SHOW TABLES LIKE 'print_batches'")->fetchAll();
+    if (empty($tables)) {
+        $pdo->exec("
+            CREATE TABLE print_batches (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                batch_code VARCHAR(50) NOT NULL UNIQUE,
+                printed_by_admin_id INT NOT NULL,
+                printed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                total_orders INT DEFAULT 0,
+                notes TEXT NULL,
+                INDEX idx_batch_code (batch_code),
+                INDEX idx_admin (printed_by_admin_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ");
+        echo "<p class='success'>✓ print_batches table created</p>";
+        $success_count++;
+    } else {
+        echo "<p class='success'>✓ print_batches table exists</p>";
+    }
+    echo "</div>";
+    
+    // 7. Add label_print_batch_id to shipments
+    echo "<div class='box'><h2>7. Update Shipments for Batch Print</h2>";
+    
+    $stmt = $pdo->query("DESCRIBE biteship_shipments");
+    $shipmentColumns = array_column($stmt->fetchAll(), 'Field');
+    
+    if (!in_array('label_print_batch_id', $shipmentColumns)) {
+        $pdo->exec("ALTER TABLE biteship_shipments ADD COLUMN label_print_batch_id INT NULL AFTER waybill_id");
+        $pdo->exec("ALTER TABLE biteship_shipments ADD INDEX idx_batch (label_print_batch_id)");
+        echo "<p class='success'>✓ Added label_print_batch_id to shipments</p>";
+        $success_count++;
+    } else {
+        echo "<p class='success'>✓ label_print_batch_id column exists</p>";
+    }
+    echo "</div>";
+    
     // Summary
     echo "<div class='box' style='background: #F0FDF4; border-color: #10B981;'>";
     echo "<h2 style='color: #10B981;'>✅ Setup Complete!</h2>";
