@@ -191,7 +191,7 @@ if (!isAdmin()) {
 
             // STEP 2: Create user_vouchers table
             try {
-                $sql = "CREATE TABLE IF NOT EXISTS `user_vouchers` (
+                $sql = "CREATE TABLE `user_vouchers` (
                     `id` INT AUTO_INCREMENT PRIMARY KEY,
                     `user_id` INT NOT NULL,
                     `voucher_id` INT NOT NULL,
