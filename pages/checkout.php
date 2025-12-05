@@ -791,6 +791,224 @@ function formatNumber(num) {
 document.getElementById('voucherModal').addEventListener('click', function(e) {
     if (e.target === this) closeVoucherModal();
 });
+
+// Process Checkout
+function processCheckout() {
+    const form = document.getElementById('checkoutForm');
+    const paymentMethod = form.querySelector('input[name="payment_method"]:checked');
+    
+    if (!paymentMethod) {
+        alert('Please select a payment method');
+        return;
+    }
+    
+    // Validate shipping method
+    if (!form.querySelector('input[name="shipping_method"]:checked')) {
+        alert('Please select a shipping method');
+        return;
+    }
+    
+    // Get final total
+    const finalTotal = parseFloat(document.getElementById('total').textContent.replace(/[^\d]/g, ''));
+    
+    // Check wallet balance if wallet payment
+    if (paymentMethod.value === 'wallet') {
+        const walletBalance = <?= $walletBalance ?>;
+        if (walletBalance < finalTotal) {
+            if (confirm('Insufficient wallet balance. Would you like to top up?')) {
+                window.location.href = '/member/wallet.php';
+            }
+            return;
+        }
+    }
+    
+    // Show loading
+    const btn = document.querySelector('.btn-checkout');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Processing...';
+    
+    // Prepare form data
+    const formData = new FormData(form);
+    
+    // Submit to API
+    fetch('/api/orders/create.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to create order');
+        }
+        
+        // Handle based on payment method
+        if (paymentMethod.value === 'wallet') {
+            // Wallet payment - redirect to success
+            alert('✅ Order placed successfully! Your order is being processed.');
+            window.location.href = '/member/orders.php';
+            
+        } else if (paymentMethod.value === 'midtrans') {
+            // Midtrans - open snap popup
+            if (!data.snap_token) {
+                throw new Error('Snap token not found');
+            }
+            
+            window.snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    alert('✅ Payment successful! Your order is being processed.');
+                    window.location.href = '/member/orders.php';
+                },
+                onPending: function(result) {
+                    alert('⏳ Payment pending. Please complete your payment.');
+                    window.location.href = '/member/orders.php';
+                },
+                onError: function(result) {
+                    alert('❌ Payment failed. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                },
+                onClose: function() {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            });
+            
+        } else if (paymentMethod.value === 'bank_transfer') {
+            // Bank transfer - show modal with instructions
+            showBankTransferModal(data);
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+// Show Bank Transfer Modal
+function showBankTransferModal(data) {
+    const modal = document.createElement('div');
+    modal.className = 'bank-transfer-modal';
+    modal.innerHTML = `
+        <div class="bank-modal-content">
+            <h2>🏦 Transfer Instructions</h2>
+            <div class="bank-info">
+                <p>Please transfer <strong class="amount">Rp ${formatNumber(data.total_with_code)}</strong></p>
+                <p class="unique-code-info">Including unique code: <strong>${data.unique_code}</strong></p>
+                <p style="color: #EF4444; margin-top: 12px;">⏰ Complete within 1 hour</p>
+            </div>
+            
+            <div class="bank-list" id="bankList">
+                <p style="text-align: center; color: #6B7280;">Loading banks...</p>
+            </div>
+            
+            <div style="margin-top: 24px; text-align: center;">
+                <a href="https://wa.me/6281377378859?text=Halo%20Admin,%20saya%20sudah%20transfer%20untuk%20order%20${data.order_number}" 
+                   target="_blank" class="btn-whatsapp">
+                    📱 Contact Admin via WhatsApp
+                </a>
+            </div>
+            
+            <button onclick="closeBankModal()" class="btn-close-bank">Got It</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+    
+    // Load available banks
+    fetch('/api/payment/get-banks.php')
+        .then(r => r.json())
+        .then(banks => {
+            const bankList = document.getElementById('bankList');
+            if (banks.length === 0) {
+                bankList.innerHTML = '<p style="color: #6B7280;">No banks available</p>';
+                return;
+            }
+            
+            bankList.innerHTML = banks.map(bank => `
+                <div class="bank-item">
+                    <div class="bank-name">${bank.bank_name}</div>
+                    <div class="bank-account">${bank.account_number}</div>
+                    <div class="bank-holder">${bank.account_name}</div>
+                </div>
+            `).join('');
+        });
+}
+
+function closeBankModal() {
+    document.querySelector('.bank-transfer-modal').remove();
+    window.location.href = '/member/orders.php';
+}
 </script>
+
+<!-- Load Midtrans Snap.js -->
+<?php
+require_once __DIR__ . '/../includes/MidtransHelper.php';
+$midtrans = new MidtransHelper($pdo);
+?>
+<script src="<?= $midtrans->getSnapJsUrl() ?>" data-client-key="<?= $midtrans->getClientKey() ?>"></script>
+
+<style>
+.bank-transfer-modal {
+    display: none; position: fixed; z-index: 10000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    justify-content: center; align-items: center;
+}
+.bank-modal-content {
+    background: white; border-radius: 20px;
+    max-width: 600px; width: 90%; padding: 40px;
+    animation: slideUp 0.4s;
+}
+.bank-modal-content h2 {
+    font-size: 28px; font-weight: 700; margin-bottom: 24px;
+    text-align: center;
+}
+.bank-info {
+    background: #F3F4F6; padding: 24px; border-radius: 12px;
+    text-align: center; margin-bottom: 24px;
+}
+.bank-info .amount {
+    font-size: 32px; color: #667EEA; display: block; margin: 12px 0;
+}
+.unique-code-info {
+    color: #6B7280; font-size: 14px; margin-top: 8px;
+}
+.bank-list {
+    max-height: 300px; overflow-y: auto;
+}
+.bank-item {
+    padding: 16px; border: 2px solid #E5E7EB; border-radius: 12px;
+    margin-bottom: 12px; transition: all 0.3s;
+}
+.bank-item:hover {
+    border-color: #667EEA; background: #F9FAFB;
+}
+.bank-name {
+    font-weight: 700; font-size: 16px; margin-bottom: 4px;
+}
+.bank-account {
+    font-family: 'Courier New', monospace; font-size: 18px;
+    color: #667EEA; font-weight: 700; margin: 8px 0;
+}
+.bank-holder {
+    color: #6B7280; font-size: 14px;
+}
+.btn-whatsapp {
+    display: inline-block; padding: 14px 28px;
+    background: #25D366; color: white; text-decoration: none;
+    border-radius: 10px; font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-whatsapp:hover {
+    background: #128C7E; transform: translateY(-2px);
+}
+.btn-close-bank {
+    width: 100%; padding: 16px; margin-top: 24px;
+    background: #1A1A1A; color: white; border: none;
+    border-radius: 10px; font-weight: 600; cursor: pointer;
+}
+</style>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
