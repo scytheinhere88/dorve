@@ -1,0 +1,205 @@
+/* A6 Shipping Label Stylesheet (105mm x 148mm) */
+@page {
+    size: A6 portrait;
+    margin: 0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #F3F4F6;
+    padding: 20px;
+}
+
+.print-info {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.print-info h2 {
+    margin-bottom: 12px;
+    color: #1F2937;
+}
+
+.btn-print, .btn-close {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+.btn-print {
+    background: #3B82F6;
+    color: white;
+}
+
+.btn-close {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.label-page {
+    width: 105mm;
+    height: 148mm;
+    background: white;
+    margin: 0 auto 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.page-break {
+    page-break-after: always;
+}
+
+.label-a6 {
+    width: 105mm;
+    height: 148mm;
+    padding: 8mm;
+    position: relative;
+    border: 1px solid #E5E7EB;
+}
+
+.label-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #000;
+    margin-bottom: 10px;
+}
+
+.logo h1 {
+    font-size: 24px;
+    font-weight: 900;
+    color: #000;
+    margin-bottom: 2px;
+}
+
+.logo p {
+    font-size: 10px;
+    color: #6B7280;
+}
+
+.batch-info {
+    text-align: right;
+    font-size: 9px;
+    color: #6B7280;
+}
+
+.address-block {
+    margin-bottom: 12px;
+    padding: 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+}
+
+.label-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: #6B7280;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.address-content {
+    font-size: 11px;
+    line-height: 1.5;
+    color: #1F2937;
+}
+
+.from-address {
+    background: #F9FAFB;
+}
+
+.to-address {
+    background: #FEF3C7;
+    border: 2px solid #F59E0B;
+}
+
+.courier-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #F3F4F6;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.courier-logo {
+    font-weight: 900;
+    color: #000;
+}
+
+.courier-service {
+    text-align: right;
+    font-size: 11px;
+    color: #374151;
+}
+
+.waybill-section {
+    text-align: center;
+    padding: 12px;
+    background: white;
+    border: 2px dashed #9CA3AF;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.barcode-placeholder {
+    background: white;
+    margin-bottom: 8px;
+}
+
+.waybill-number {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    color: #000;
+}
+
+.label-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #6B7280;
+    padding-top: 8px;
+    border-top: 1px solid #E5E7EB;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+    
+    .no-print, .print-info {
+        display: none !important;
+    }
+    
+    .label-page {
+        margin: 0;
+        box-shadow: none;
+        page-break-after: always;
+    }
+    
+    .label-page:last-child {
+        page-break-after: auto;
+    }
+    
+    .label-a6 {
+        border: none;
+    }
+}

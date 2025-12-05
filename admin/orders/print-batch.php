@@ -1,117 +1,98 @@
 <?php
-/**
- * Batch Print A6 Shipping Labels
- * Print multiple labels at once
- */
-
+session_start();
 require_once __DIR__ . '/../../config.php';
-if (!isAdmin()) redirect('/admin/login.php');
 
-$batchId = intval($_GET['batch_id'] ?? 0);
-
-if ($batchId <= 0) {
-    die('Invalid batch ID');
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    die('Unauthorized');
 }
 
-// Get batch info
-$stmt = $pdo->prepare("SELECT * FROM print_batches WHERE id = ?");
-$stmt->execute([$batchId]);
-$batch = $stmt->fetch();
+// Get order IDs from query string
+$orderIds = isset($_GET['order_ids']) ? explode(',', $_GET['order_ids']) : [];
+$orderIds = array_map('intval', array_filter($orderIds));
 
-if (!$batch) {
-    die('Batch not found');
+if (empty($orderIds)) {
+    die('No orders selected');
 }
 
-// Get orders in this batch
-$stmt = $pdo->query("
+// Create print batch record
+$batchCode = 'PRINT-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+$stmt = $pdo->prepare("INSERT INTO print_batches (batch_code, printed_by_admin_id, total_orders) VALUES (?, ?, ?)");
+$stmt->execute([$batchCode, $_SESSION['user_id'], count($orderIds)]);
+$batchId = $pdo->lastInsertId();
+
+// Update shipments with batch ID
+$placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+$stmt = $pdo->prepare("UPDATE biteship_shipments SET label_print_batch_id = ? WHERE order_id IN ($placeholders)");
+$stmt->execute(array_merge([$batchId], $orderIds));
+
+// Update order status to waiting_pickup
+$stmt = $pdo->prepare("UPDATE orders SET fulfillment_status = 'waiting_pickup' WHERE id IN ($placeholders)");
+$stmt->execute($orderIds);
+
+// Get orders with shipment data
+$stmt = $pdo->prepare("
     SELECT 
-        o.*,
-        s.*,
-        s.id as shipment_id,
-        oa.name as recipient_name,
-        oa.phone as recipient_phone,
-        oa.address_line as recipient_address,
-        oa.district as recipient_district,
-        oa.city as recipient_city,
-        oa.province as recipient_province,
-        oa.postal_code as recipient_postal
+        o.order_number,
+        o.created_at,
+        bs.waybill_id,
+        bs.courier_company,
+        bs.courier_service_name,
+        bs.weight_kg,
+        oa_ship.name as ship_name,
+        oa_ship.phone as ship_phone,
+        oa_ship.address_line as ship_address,
+        oa_ship.district as ship_district,
+        oa_ship.city as ship_city,
+        oa_ship.province as ship_province,
+        oa_ship.postal_code as ship_postal,
+        s.setting_value as store_name,
+        s2.setting_value as store_phone,
+        s3.setting_value as store_address,
+        s4.setting_value as store_city,
+        s5.setting_value as store_province,
+        s6.setting_value as store_postal
     FROM orders o
-    INNER JOIN biteship_shipments s ON o.id = s.order_id
-    INNER JOIN order_addresses oa ON o.id = oa.order_id AND oa.type = 'shipping'
-    WHERE s.label_print_batch_id = $batchId
-    ORDER BY o.id ASC
+    JOIN biteship_shipments bs ON o.id = bs.order_id
+    JOIN order_addresses oa_ship ON o.id = oa_ship.order_id AND oa_ship.type = 'shipping'
+    LEFT JOIN settings s ON s.setting_key = 'store_name'
+    LEFT JOIN settings s2 ON s2.setting_key = 'store_phone'
+    LEFT JOIN settings s3 ON s3.setting_key = 'store_address'
+    LEFT JOIN settings s4 ON s4.setting_key = 'store_city'
+    LEFT JOIN settings s5 ON s5.setting_key = 'store_province'
+    LEFT JOIN settings s6 ON s6.setting_key = 'store_postal_code'
+    WHERE o.id IN ($placeholders)
+    ORDER BY o.created_at DESC
 ");
-$shipments = $stmt->fetchAll();
-
-if (empty($shipments)) {
-    die('No shipments found in this batch');
-}
-
-// Load store info
-require_once __DIR__ . '/../../includes/BiteshipConfig.php';
-$storeInfo = BiteshipConfig::load()['store'];
+$stmt->execute($orderIds);
+$orders = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Print Batch <?php echo $batch['batch_code']; ?> - Dorve.id</title>
-    <link rel="stylesheet" href="/admin/orders/label-a6.css">
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            .label { page-break-after: always; }
-            .label:last-child { page-break-after: auto; }
-        }
-        .no-print {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-    </style>
+    <meta charset="utf-8">
+    <title>Print Batch - <?php echo $batchCode; ?></title>
+    <link rel="stylesheet" href="/admin/assets/label-a6.css">
 </head>
 <body>
+    <div class="print-info no-print">
+        <h2>📄 Print Batch: <?php echo $batchCode; ?></h2>
+        <p>Total: <?php echo count($orders); ?> labels</p>
+        <button onclick="window.print()" class="btn-print">🖨️ Print Sekarang</button>
+        <button onclick="window.close()" class="btn-close">✕ Tutup</button>
+    </div>
 
-<!-- Print Controls -->
-<div class="no-print">
-    <h3 style="margin: 0 0 12px; font-size: 16px;">Batch: <?php echo $batch['batch_code']; ?></h3>
-    <p style="margin: 0 0 12px; font-size: 14px; color: #6B7280;">
-        <?php echo count($shipments); ?> label(s) ready to print
-    </p>
-    <button onclick="window.print()" style="padding: 10px 20px; background: #10B981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 8px;">
-        🖨️ Print All Labels
-    </button>
-    <button onclick="window.close()" style="padding: 10px 20px; background: #6B7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">
-        ← Close
-    </button>
-</div>
+    <?php foreach ($orders as $index => $order): ?>
+        <div class="label-page">
+            <?php include __DIR__ . '/templates/label-a6.php'; ?>
+        </div>
+        <?php if ($index < count($orders) - 1): ?>
+            <div class="page-break"></div>
+        <?php endif; ?>
+    <?php endforeach; ?>
 
-<!-- Labels -->
-<?php foreach ($shipments as $index => $shipment): ?>
-    <?php include __DIR__ . '/label-a6-template.php'; ?>
-<?php endforeach; ?>
-
-<script>
-// Auto print on load (optional)
-// window.onload = function() { window.print(); };
-
-// Update status after print
-window.onafterprint = function() {
-    // Send AJAX to update status
-    fetch('/admin/orders/update-print-status.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({batch_id: <?php echo $batchId; ?>})
-    }).then(() => {
-        console.log('Print status updated');
-    });
-};
-</script>
-
+    <script>
+    // Auto print dialog on load (optional)
+    // window.onload = function() { window.print(); };
+    </script>
 </body>
 </html>
