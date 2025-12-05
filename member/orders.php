@@ -343,4 +343,16 @@ include __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
+<?php include __DIR__ . '/../includes/tracking-modal.php'; ?>
+
+<script>
+function copyOrderId(orderNumber) {
+    navigator.clipboard.writeText(orderNumber).then(() => {
+        alert('✅ Order ID copied! Anda bisa kasih ini ke admin untuk konfirmasi order: ' + orderNumber);
+    }).catch(err => {
+        alert('❌ Gagal copy: ' + err.message);
+    });
+}
+</script>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>
