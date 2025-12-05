@@ -328,6 +328,11 @@ include __DIR__ . '/../includes/header.php';
 
                     <div class="order-actions">
                         <a href="/member/order-detail.php?id=<?php echo $order['id']; ?>" class="btn btn-primary">View Details</a>
+                        <?php if ($order['tracking_number'] || $order['shipping_status'] !== 'pending'): ?>
+                            <button onclick="openTrackingModal(<?php echo $order['id']; ?>)" class="btn btn-secondary" style="background: #10B981;">
+                                📦 Track Paket
+                            </button>
+                        <?php endif; ?>
                         <?php if ($order['shipping_status'] === 'delivered'): ?>
                             <a href="/member/reviews.php?order=<?php echo $order['id']; ?>" class="btn btn-secondary">Write Review</a>
                         <?php endif; ?>
