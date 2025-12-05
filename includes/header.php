@@ -38,6 +38,36 @@ $canonical_url = getCanonicalUrl();
     <meta name="keywords" content="<?php echo $page_keywords ?? 'dorve.id, dorve id, toko baju online, fashion pria, fashion wanita, baju kekinian, baju trendy, dress wanita, kemeja pria, kaos, hoodie, baju online murah, fashion unisex, toko fashion indonesia, baju couple, outfit kekinian, model baju terbaru, fashion online indonesia'; ?>">
     <link rel="icon" type="image/png" href="/public/images/fav.ico">
     <link rel="shortcut icon" type="image/png" href="/public/images/fav.ico">
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Dorve.id",
+      "alternateName": "Dorve",
+      "url": "https://dorve.id",
+      "logo": "https://dorve.id/public/images/logo.png",
+      "description": "Pusat fashion pria, wanita & unisex terlengkap di Indonesia. Koleksi baju kekinian, dress, kemeja, kaos, hoodie dengan harga terjangkau.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "ID",
+        "addressRegion": "Indonesia"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "availableLanguage": ["Indonesian", "English"]
+      },
+      "sameAs": [
+        "https://www.instagram.com/dorve.id",
+        "https://www.tiktok.com/@dorve.id",
+        "https://www.facebook.com/dorve.id",
+        "https://shopee.co.id/dorve.id",
+        "https://id.pinterest.com/dorveid"
+      ]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
