@@ -25,10 +25,7 @@ $transactions = $stmt->fetchAll();
 // If step is 'confirm', get transaction details
 $pending_txn = null;
 if ($step === 'confirm' && $txn_id) {
-    $stmt = $pdo->prepare("SELECT wt.*, ba.bank_name, ba.account_number, ba.account_name
-                           FROM wallet_transactions wt
-                           LEFT JOIN bank_accounts ba ON wt.bank_account_id = ba.id
-                           WHERE wt.id = ? AND wt.user_id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM wallet_transactions WHERE id = ? AND user_id = ?");
     $stmt->execute([$txn_id, $_SESSION['user_id']]);
     $pending_txn = $stmt->fetch();
 }
