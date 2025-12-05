@@ -461,7 +461,14 @@ include __DIR__ . '/../includes/header.php';
 
             <?php if (!empty($sizes)): ?>
             <div class="variant-section">
-                <label class="variant-label">Size</label>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="variant-label">Size</label>
+                    <?php if (!empty($product['size_guide'])): ?>
+                        <button type="button" onclick="openSizeGuide()" style="background: none; border: none; color: var(--charcoal); text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0;">
+                            📏 Size Guide
+                        </button>
+                    <?php endif; ?>
+                </div>
                 <div class="variant-options">
                     <?php foreach ($sizes as $size): ?>
                         <button type="button" class="variant-option" data-variant="size" data-value="<?php echo htmlspecialchars($size); ?>">
