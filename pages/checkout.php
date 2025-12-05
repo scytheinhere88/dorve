@@ -437,7 +437,13 @@ include __DIR__ . '/../includes/header.php';
                 </div>
             </div>
 
-            <button type="submit" class="btn-checkout">Place Order</button>
+            <input type="hidden" name="voucher_discount" id="voucher_discount_input" value="">
+            <input type="hidden" name="voucher_free_shipping" id="voucher_free_shipping_input" value="">
+            <input type="hidden" name="voucher_codes" id="voucher_codes_input" value="">
+            
+            <button type="submit" class="btn-checkout">
+                🎉 Complete Purchase
+            </button>
         </form>
     </div>
 
