@@ -268,7 +268,7 @@ function sendShippingUpdateEmail($email, $name, $order_number, $tracking_number,
     </table>
     
     <p style="margin: 24px 0 0; font-size: 14px; color: #6B7280; line-height: 1.6; text-align: center;">
-        Terima kasih sudah berbelanja di Dorve House! 💚
+        Terima kasih sudah berbelanja di Dorve.id! 💚
     </p>
     ';
     
