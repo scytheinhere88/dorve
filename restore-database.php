@@ -311,8 +311,8 @@ header('Content-Type: text/html; charset=utf-8');
             flush();
             ob_flush();
 
-            // Execute SQL file
-            $sqlFile = __DIR__ . '/COMPLETE-DATABASE-RESTORE.sql';
+            // Execute SQL file (V2 - Safer approach)
+            $sqlFile = __DIR__ . '/COMPLETE-DATABASE-RESTORE-V2.sql';
             $result = executeSQLFile($pdo, $sqlFile);
 
             echo '<div class="progress">';
