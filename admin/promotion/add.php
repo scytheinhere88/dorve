@@ -78,12 +78,22 @@ include __DIR__ . '/../includes/admin-header.php';
     <div class="form-group">
         <label>Subtitle</label>
         <input type="text" name="subtitle" placeholder="e.g., Up to 50% Off" value="<?php echo htmlspecialchars($_POST['subtitle'] ?? ''); ?>">
+        <small>Optional - Leave empty for cleaner design</small>
+    </div>
+    
+    <div class="form-group">
+        <label>Banner Type *</label>
+        <select name="banner_type" required>
+            <option value="slider">Homepage Slider Banner</option>
+            <option value="popup">Popup Banner (Auto show after 3 seconds)</option>
+        </select>
+        <small>Choose where this banner will be displayed</small>
     </div>
     
     <div class="form-group">
         <label>Banner Image *</label>
         <input type="file" name="image" accept="image/*" required>
-        <small>Recommended size: 1920x600px (Desktop Banner), Max: 128MB</small>
+        <small><strong>Recommended size: 2944x1440px</strong> for best quality. Max: 128MB</small>
     </div>
     
     <div class="form-group">
