@@ -235,8 +235,7 @@ echo "<!-- Checking Critical Files -->\n";
 $critical_files = [
     'Config' => '/config.php',
     'Header Include' => '/includes/header.php',
-    'Footer Include' => '/includes/footer.php',
-    'Functions' => '/includes/functions.php'
+    'Footer Include' => '/includes/footer.php'
 ];
 
 foreach ($critical_files as $name => $path) {
