@@ -392,11 +392,53 @@ include __DIR__ . '/../includes/admin-header.php';
                     </div>
                 </div>
                 
+                <!-- Status Indicators -->
+                <div style="margin: 24px 0; padding: 20px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E5E7EB;">
+                    <h4 style="margin: 0 0 16px; font-size: 16px; color: #374151;">🔍 Connection Status</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <p style="margin: 0 0 8px; font-size: 14px; color: #6B7280;">Biteship API:</p>
+                            <?php
+                            $apiStatus = $settings['biteship_api_test_status'] ?? 'not_tested';
+                            $apiTime = $settings['biteship_api_test_time'] ?? null;
+                            if ($apiStatus === 'connected') {
+                                echo '<span style="padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 6px; font-size: 13px; font-weight: 600;">✅ Connected</span>';
+                                if ($apiTime) echo '<p style="margin: 4px 0 0; font-size: 12px; color: #6B7280;">Last tested: ' . date('d M Y H:i', strtotime($apiTime)) . '</p>';
+                            } elseif ($apiStatus === 'failed') {
+                                echo '<span style="padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 6px; font-size: 13px; font-weight: 600;">❌ Failed</span>';
+                                if ($apiTime) echo '<p style="margin: 4px 0 0; font-size: 12px; color: #6B7280;">Last tested: ' . date('d M Y H:i', strtotime($apiTime)) . '</p>';
+                            } else {
+                                echo '<span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 13px; font-weight: 600;">⚪ Not Tested</span>';
+                            }
+                            ?>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 8px; font-size: 14px; color: #6B7280;">Webhook Endpoint:</p>
+                            <?php
+                            $webhookStatus = $settings['biteship_webhook_test_status'] ?? 'not_tested';
+                            $webhookTime = $settings['biteship_webhook_test_time'] ?? null;
+                            if ($webhookStatus === 'ok') {
+                                echo '<span style="padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 6px; font-size: 13px; font-weight: 600;">✅ OK</span>';
+                                if ($webhookTime) echo '<p style="margin: 4px 0 0; font-size: 12px; color: #6B7280;">Last tested: ' . date('d M Y H:i', strtotime($webhookTime)) . '</p>';
+                            } elseif ($webhookStatus === 'failed') {
+                                echo '<span style="padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 6px; font-size: 13px; font-weight: 600;">❌ ERROR</span>';
+                                if ($webhookTime) echo '<p style="margin: 4px 0 0; font-size: 12px; color: #6B7280;">Last tested: ' . date('d M Y H:i', strtotime($webhookTime)) . '</p>';
+                            } else {
+                                echo '<span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 13px; font-weight: 600;">⚪ Not Tested</span>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Action Buttons -->
-                <div style="margin-top: 30px; display: flex; gap: 12px;">
+                <div style="margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap;">
                     <button type="submit" class="btn btn-primary">💾 Save Biteship Settings</button>
-                    <button type="button" class="btn btn-secondary" onclick="testBiteshipConnection()">
-                        🧪 Test Connection
+                    <button type="button" class="btn btn-secondary" onclick="testBiteshipAPI()" style="background: #10B981;">
+                        🧪 Test API Key
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="testBiteshipWebhook()" style="background: #F59E0B;">
+                        📡 Test Webhook
                     </button>
                 </div>
                 
