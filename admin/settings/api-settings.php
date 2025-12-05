@@ -536,26 +536,57 @@ document.getElementById('shipping_aggregator').addEventListener('change', functi
 // Trigger on page load
 document.getElementById('shipping_aggregator').dispatchEvent(new Event('change'));
 
-// Test Biteship Connection
-function testBiteshipConnection() {
+// Test Biteship API Key
+function testBiteshipAPI() {
     const resultDiv = document.getElementById('biteshipTestResult');
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<div class="alert alert-info">🔄 Testing Biteship API connection...</div>';
+    resultDiv.innerHTML = '<div class="alert alert-info">🔄 Testing Biteship API key...</div>';
 
-    const form = new FormData();
-    form.append('action', 'test_biteship');
-
-    fetch(window.location.href, {
+    fetch('/admin/integration/test-biteship-api.php', {
         method: 'POST',
-        body: form
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
-    .then(response => response.text())
-    .then(html => {
-        // Reload page to show result
-        window.location.reload();
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = '<div class="alert alert-success"><strong>' + data.message + '</strong><br><small>' + (data.details || '') + '</small></div>';
+            // Reload after 2 seconds to update status badge
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            resultDiv.innerHTML = '<div class="alert alert-error"><strong>' + data.message + '</strong><br><small>' + (data.error || data.details || '') + '</small></div>';
+        }
     })
     .catch(error => {
-        resultDiv.innerHTML = '<div class="alert alert-error">❌ Connection test failed: ' + error.message + '</div>';
+        resultDiv.innerHTML = '<div class="alert alert-error">❌ Test failed: ' + error.message + '</div>';
+    });
+}
+
+// Test Biteship Webhook
+function testBiteshipWebhook() {
+    const resultDiv = document.getElementById('biteshipTestResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<div class="alert alert-info">🔄 Testing webhook endpoint...</div>';
+
+    fetch('/admin/integration/test-webhook.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = '<div class="alert alert-success"><strong>' + data.message + '</strong><br><small>' + (data.details || '') + '</small></div>';
+            // Reload after 2 seconds to update status badge
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            resultDiv.innerHTML = '<div class="alert alert-error"><strong>' + data.message + '</strong><br><small>' + (data.error || data.details || '') + '</small></div>';
+        }
+    })
+    .catch(error => {
+        resultDiv.innerHTML = '<div class="alert alert-error">❌ Test failed: ' + error.message + '</div>';
     });
 }
 
