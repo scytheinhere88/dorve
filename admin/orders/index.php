@@ -375,55 +375,185 @@ include __DIR__ . '/../includes/admin-header.php';
                             <strong><?php echo htmlspecialchars($order['order_number']); ?></strong>
                             <span class="order-id-display">Order ID: #<?php echo $order['id']; ?></span>
                         </td>
-                            <td>
-                                <div><?php echo htmlspecialchars($order['customer_name']); ?></div>
-                                <small style="color: #6B7280;"><?php echo htmlspecialchars($order['customer_email']); ?></small>
-                            </td>
-                            <td><strong>Rp <?php echo number_format($order['total_amount'], 0, ',', '.'); ?></strong></td>
-                            <td>
-                                <?php
-                                $payment_badge = '';
-                                switch($order['payment_status']) {
-                                    case 'paid':
-                                        $payment_badge = '<span style="padding: 6px 12px; background: #ECFDF5; color: #059669; border-radius: 6px; font-size: 13px; font-weight: 600;">Paid</span>';
-                                        break;
-                                    case 'pending':
-                                        $payment_badge = '<span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 13px; font-weight: 600;">Pending</span>';
-                                        break;
-                                    default:
-                                        $payment_badge = '<span style="padding: 6px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; font-size: 13px; font-weight: 600;">' . ucfirst($order['payment_status']) . '</span>';
-                                }
-                                echo $payment_badge;
+                        <td>
+                            <div><?php echo htmlspecialchars($order['customer_name'] ?? '-'); ?></div>
+                            <small style="color: #6B7280;"><?php echo htmlspecialchars($order['customer_email'] ?? '-'); ?></small>
+                        </td>
+                        <td>
+                            <div><?php echo htmlspecialchars($order['customer_city'] ?? '-'); ?></div>
+                            <small style="color: #6B7280;"><?php echo htmlspecialchars($order['customer_province'] ?? '-'); ?></small>
+                        </td>
+                        <td>
+                            <?php if ($order['courier_company']): ?>
+                                <div><strong><?php echo strtoupper($order['courier_company']); ?></strong></div>
+                                <small style="color: #6B7280;"><?php echo htmlspecialchars($order['courier_service_name'] ?? ''); ?></small>
+                            <?php else: ?>
+                                <span style="color: #9CA3AF;">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($order['waybill_id']): ?>
+                                <a href="/admin/orders/detail.php?id=<?php echo $order['id']; ?>" 
+                                   style="color: #3B82F6; text-decoration: none; font-family: monospace; font-size: 12px;">
+                                    <?php echo htmlspecialchars($order['waybill_id']); ?>
+                                </a>
+                            <?php elseif ($order['tracking_number']): ?>
+                                <span style="font-family: monospace; font-size: 12px; color: #6B7280;">
+                                    <?php echo htmlspecialchars($order['tracking_number']); ?>
+                                </span>
+                            <?php else: ?>
+                                <span style="color: #9CA3AF;">Belum ada</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span class="status-badge status-<?php echo $order['fulfillment_status']; ?>">
+                                <?php 
+                                $statusLabels = [
+                                    'new' => 'Baru',
+                                    'waiting_print' => 'Siap Print',
+                                    'waiting_pickup' => 'Menunggu Pickup',
+                                    'in_transit' => 'Dalam Pengiriman',
+                                    'delivered' => 'Terkirim',
+                                    'cancelled' => 'Dibatalkan'
+                                ];
+                                echo $statusLabels[$order['fulfillment_status']] ?? $order['fulfillment_status'];
                                 ?>
-                            </td>
-                            <td>
-                                <?php
-                                $shipping_badge = '';
-                                switch($order['shipping_status']) {
-                                    case 'delivered':
-                                        $shipping_badge = '<span style="padding: 6px 12px; background: #ECFDF5; color: #059669; border-radius: 6px; font-size: 13px; font-weight: 600;">Delivered</span>';
-                                        break;
-                                    case 'shipped':
-                                        $shipping_badge = '<span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 13px; font-weight: 600;">Shipped</span>';
-                                        break;
-                                    case 'processing':
-                                        $shipping_badge = '<span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 13px; font-weight: 600;">Processing</span>';
-                                        break;
-                                    default:
-                                        $shipping_badge = '<span style="padding: 6px 12px; background: #F3F4F6; color: #374151; border-radius: 6px; font-size: 13px; font-weight: 600;">' . ucfirst($order['shipping_status']) . '</span>';
-                                }
-                                echo $shipping_badge;
-                                ?>
-                            </td>
-                            <td>
-                                <a href="/admin/orders/detail.php?id=<?php echo $order['id']; ?>" class="btn btn-primary">View Details</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                            </span>
+                        </td>
+                        <td><strong><?php echo formatPrice($order['total_amount']); ?></strong></td>
+                        <td>
+                            <small><?php echo date('d M Y', strtotime($order['created_at'])); ?></small>
+                        </td>
+                        <td>
+                            <a href="/admin/orders/detail.php?id=<?php echo $order['id']; ?>" 
+                               style="color: #3B82F6; text-decoration: none; font-weight: 500;">
+                                Detail →
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
 </div>
+
+<!-- Pagination -->
+<?php if ($totalPages > 1): ?>
+<div class="pagination">
+    <?php if ($page > 1): ?>
+        <a href="?status=<?php echo $status; ?>&page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>">« Prev</a>
+    <?php endif; ?>
+    
+    <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+        <?php if ($i === $page): ?>
+            <span class="active"><?php echo $i; ?></span>
+        <?php else: ?>
+            <a href="?status=<?php echo $status; ?>&page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+        <?php endif; ?>
+    <?php endfor; ?>
+    
+    <?php if ($page < $totalPages): ?>
+        <a href="?status=<?php echo $status; ?>&page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>">Next »</a>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<script>
+// Search functionality
+function searchOrders() {
+    const query = document.getElementById('searchInput').value;
+    const currentStatus = '<?php echo $status; ?>';
+    window.location.href = '?status=' + currentStatus + '&search=' + encodeURIComponent(query);
+}
+
+function clearSearch() {
+    const currentStatus = '<?php echo $status; ?>';
+    window.location.href = '?status=' + currentStatus;
+}
+
+// Checkbox management
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateBulkActions();
+}
+
+document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', updateBulkActions);
+});
+
+function updateBulkActions() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (checked.length > 0) {
+        bulkActions.classList.add('show');
+        selectedCount.textContent = `${checked.length} pesanan dipilih`;
+    } else {
+        bulkActions.classList.remove('show');
+    }
+}
+
+function clearSelection() {
+    document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+    updateBulkActions();
+}
+
+function printSelectedLabels() {
+    const checked = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    const orderIds = checked.map(cb => cb.value);
+    
+    if (orderIds.length === 0) {
+        alert('Pilih minimal 1 pesanan untuk print label');
+        return;
+    }
+    
+    // Check if all selected orders have waybill
+    const withoutWaybill = checked.filter(cb => cb.dataset.hasWaybill === '0');
+    if (withoutWaybill.length > 0) {
+        alert(`${withoutWaybill.length} pesanan belum memiliki waybill. Hanya pesanan dengan waybill yang bisa diprint.`);
+        return;
+    }
+    
+    // Open print page in new window
+    const url = '/admin/orders/print-batch.php?order_ids=' + orderIds.join(',');
+    window.open(url, '_blank', 'width=800,height=600');
+}
+
+function updateSelectedStatus(newStatus) {
+    const checked = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    const orderIds = checked.map(cb => cb.value);
+    
+    if (orderIds.length === 0) {
+        alert('Pilih minimal 1 pesanan');
+        return;
+    }
+    
+    if (!confirm(`Update status ${orderIds.length} pesanan ke "${newStatus}"?`)) {
+        return;
+    }
+    
+    // Send AJAX request
+    fetch('/admin/orders/update-status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_ids: orderIds, status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Status berhasil diupdate!');
+            window.location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error.message);
+    });
+}
+</script>
 
 <?php include __DIR__ . '/../includes/admin-footer.php'; ?>
