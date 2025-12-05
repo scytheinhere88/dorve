@@ -108,7 +108,7 @@ include __DIR__ . '/../includes/admin-header.php';
         </div>
         <label>Upload New Image (Optional)</label>
         <input type="file" name="image" accept="image/*">
-        <small>Leave empty to keep current image. Recommended size: 1920x600px</small>
+        <small>Leave empty to keep current image. Recommended size: 1920x600px, Max: 128MB</small>
     </div>
     
     <div class="form-group">
