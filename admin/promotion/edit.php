@@ -119,13 +119,19 @@ include __DIR__ . '/../includes/admin-header.php';
         </div>
         <label>Upload New Image (Optional)</label>
         <input type="file" name="image" accept="image/*">
-        <small>Leave empty to keep current image. Recommended size: 1920x600px, Max: 128MB</small>
+        <small>Leave empty to keep current image. <strong>Recommended: 2944x1440px</strong>, Max: 128MB</small>
     </div>
     
     <div class="form-group">
-        <label>Link URL</label>
-        <input type="url" name="link_url" placeholder="https://..." value="<?php echo htmlspecialchars($banner['link_url'] ?? ''); ?>">
-        <small>Where should the banner link to?</small>
+        <label>Link URL *</label>
+        <input type="text" name="link_url" placeholder="/pages/all-products.php" value="<?php echo htmlspecialchars($banner['link_url'] ?? ''); ?>" required>
+        <small>Where banner leads to</small>
+    </div>
+    
+    <div class="form-group">
+        <label>CTA Button Text</label>
+        <input type="text" name="cta_text" placeholder="Shop Now" value="<?php echo htmlspecialchars($banner['cta_text'] ?? 'Shop Now'); ?>" maxlength="50">
+        <small>Button text on banner</small>
     </div>
     
     <div class="form-row">
