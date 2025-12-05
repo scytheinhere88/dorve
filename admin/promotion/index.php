@@ -72,8 +72,9 @@ include __DIR__ . '/../includes/admin-header.php';
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Type</th>
                 <th>Image</th>
-                <th>Link</th>
+                <th>CTA</th>
                 <th>Order</th>
                 <th>Status</th>
                 <th>Actions</th>
