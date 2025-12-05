@@ -99,6 +99,15 @@ include __DIR__ . '/../includes/admin-header.php';
     <div class="form-group">
         <label>Subtitle</label>
         <input type="text" name="subtitle" placeholder="e.g., Up to 50% Off" value="<?php echo htmlspecialchars($banner['subtitle'] ?? ''); ?>">
+        <small>Optional - Leave empty for cleaner design</small>
+    </div>
+    
+    <div class="form-group">
+        <label>Banner Type *</label>
+        <select name="banner_type" required>
+            <option value="slider" <?php echo ($banner['banner_type'] ?? 'slider') === 'slider' ? 'selected' : ''; ?>>Homepage Slider Banner</option>
+            <option value="popup" <?php echo ($banner['banner_type'] ?? 'slider') === 'popup' ? 'selected' : ''; ?>>Popup Banner (Auto show after 3 seconds)</option>
+        </select>
     </div>
     
     <div class="form-group">
