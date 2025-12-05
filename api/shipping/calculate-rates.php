@@ -47,23 +47,44 @@ try {
     if ($result['success']) {
         $pricing = $result['data']['pricing'] ?? [];
         
-        // Format response
+        // Format response - ONLY AVAILABLE COURIERS
         $rates = [];
+        $unavailableCouriers = [];
+        
         foreach ($pricing as $rate) {
-            $rates[] = [
-                'courier_company' => $rate['courier_company'] ?? '',
-                'courier_name' => $rate['courier_name'] ?? '',
-                'courier_service_name' => $rate['courier_service_name'] ?? '',
-                'rate_id' => $rate['rate_id'] ?? '',
-                'price' => $rate['price'] ?? 0,
-                'duration' => $rate['duration'] ?? '',
-                'description' => $rate['description'] ?? ''
-            ];
+            $price = floatval($rate['price'] ?? 0);
+            $courierCompany = $rate['courier_company'] ?? '';
+            $courierService = $rate['courier_service_name'] ?? '';
+            
+            // Only include couriers with valid price (available)
+            if ($price > 0 && !empty($courierCompany)) {
+                $rates[] = [
+                    'courier_company' => $courierCompany,
+                    'courier_name' => $rate['courier_name'] ?? '',
+                    'courier_service_name' => $courierService,
+                    'rate_id' => $rate['rate_id'] ?? '',
+                    'price' => $price,
+                    'duration' => $rate['duration'] ?? '',
+                    'description' => $rate['description'] ?? '',
+                    'available' => true
+                ];
+            } else {
+                // Track unavailable couriers for logging
+                $unavailableCouriers[] = $courierCompany . ' - ' . $courierService;
+            }
         }
+        
+        // Sort by price (cheapest first)
+        usort($rates, function($a, $b) {
+            return $a['price'] - $b['price'];
+        });
         
         echo json_encode([
             'success' => true,
-            'rates' => $rates
+            'rates' => $rates,
+            'total_available' => count($rates),
+            'unavailable_couriers' => $unavailableCouriers, // For debugging
+            'message' => count($rates) > 0 ? 'Rates available' : 'No couriers available for this area'
         ]);
     } else {
         throw new Exception($result['error'] ?? 'Failed to get shipping rates');
