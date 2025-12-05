@@ -367,9 +367,10 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="checkout-container">
     <div class="checkout-form">
-        <h2>Checkout</h2>
+        <h2>🛍️ Checkout</h2>
+        <p class="checkout-subtitle">Complete your order in just a few steps</p>
 
-        <form action="/pages/process-order.php" method="POST">
+        <form action="/pages/process-order.php" method="POST" id="checkoutForm">
             <div class="form-section">
                 <h3>Shipping Information</h3>
                 <div class="form-group">
