@@ -189,7 +189,8 @@ if (!isAdmin()) {
                     'midtrans_transaction_id' => "ALTER TABLE orders ADD COLUMN midtrans_transaction_id VARCHAR(255) NULL AFTER midtrans_order_id",
                     'midtrans_snap_token' => "ALTER TABLE orders ADD COLUMN midtrans_snap_token TEXT NULL AFTER midtrans_transaction_id",
                     'unique_code' => "ALTER TABLE orders ADD COLUMN unique_code INT NULL AFTER midtrans_snap_token",
-                    'paid_at' => "ALTER TABLE orders ADD COLUMN paid_at DATETIME NULL AFTER unique_code"
+                    'paid_at' => "ALTER TABLE orders ADD COLUMN paid_at DATETIME NULL AFTER unique_code",
+                    'expired_at' => "ALTER TABLE orders ADD COLUMN expired_at DATETIME NULL AFTER paid_at"
                 ];
                 
                 $addedColumns = 0;
@@ -200,7 +201,14 @@ if (!isAdmin()) {
                     }
                 }
                 
-                $results[] = ['success' => true, 'step' => 'Update orders Table', 'message' => "Added $addedColumns new columns"];
+                // Update existing pending orders with expiry
+                $pdo->exec("
+                    UPDATE orders 
+                    SET expired_at = DATE_ADD(created_at, INTERVAL 1 HOUR) 
+                    WHERE payment_status = 'pending' AND expired_at IS NULL
+                ");
+                
+                $results[] = ['success' => true, 'step' => 'Update orders Table', 'message' => "Added $addedColumns new columns & set expiry for pending orders"];
                 $successCount++;
             } catch (Exception $e) {
                 $results[] = ['success' => false, 'step' => 'Update orders Table', 'message' => $e->getMessage()];
