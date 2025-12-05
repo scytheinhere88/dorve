@@ -180,6 +180,47 @@ try {
                 }
             }
             
+            // AUTO CREATE BITESHIP SHIPMENT
+            try {
+                // Get Biteship API key
+                $biteshipKey = ''; // Add your Biteship key here or from settings
+                
+                // Get order address
+                $stmt = $pdo->prepare("SELECT * FROM order_addresses WHERE order_id = ? LIMIT 1");
+                $stmt->execute([$order['id']]);
+                $address = $stmt->fetch();
+                
+                if ($address && $order['shipping_courier'] && $order['shipping_service']) {
+                    // Create Biteship shipment
+                    $biteshipData = [
+                        'origin_contact_name' => 'Dorve Store',
+                        'origin_address' => 'Your store address',
+                        'destination_contact_name' => $address['recipient_name'] ?? '',
+                        'destination_contact_phone' => $address['phone'] ?? '',
+                        'destination_address' => $address['address'] ?? '',
+                        'courier_company' => $order['shipping_courier'],
+                        'courier_type' => $order['shipping_service'],
+                        'delivery_type' => 'now',
+                        'order_note' => 'Order #' . $order['order_number']
+                    ];
+                    
+                    // Call Biteship API (add proper implementation)
+                    // For now, just log
+                    file_put_contents(
+                        __DIR__ . '/../../logs/biteship_auto_create.log',
+                        date('Y-m-d H:i:s') . ' - Order #' . $order['id'] . ' ready for shipment' . "\n",
+                        FILE_APPEND
+                    );
+                }
+            } catch (Exception $e) {
+                // Log error but don't fail the transaction
+                file_put_contents(
+                    __DIR__ . '/../../logs/biteship_errors.log',
+                    date('Y-m-d H:i:s') . ' - Error: ' . $e->getMessage() . "\n",
+                    FILE_APPEND
+                );
+            }
+            
         } elseif ($transactionStatus == 'pending') {
             $stmt = $pdo->prepare("UPDATE orders SET payment_status = 'pending' WHERE id = ?");
             $stmt->execute([$order['id']]);
