@@ -235,7 +235,14 @@ include __DIR__ . '/../includes/admin-header.php';
                 <label>Category Image</label>
                 <div id="current_image_preview" style="margin-bottom: 12px;"></div>
                 <input type="file" name="image" accept="image/*">
-                <small>Upload new image to replace existing one</small>
+                <small>Upload new image to replace existing one. Max: 128MB</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Size Guide Image</label>
+                <div id="current_size_guide_preview" style="margin-bottom: 12px;"></div>
+                <input type="file" name="size_guide" accept="image/*">
+                <small>Upload new size guide to replace existing one. Max: 128MB</small>
             </div>
             
             <div class="btn-group">
