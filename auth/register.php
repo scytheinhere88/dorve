@@ -68,20 +68,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Send verification email
-                require_once __DIR__ . '/../includes/email-helper.php';
-                $verification_token = bin2hex(random_bytes(32));
-                $verification_expiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                try {
+                    require_once __DIR__ . '/../includes/email-helper.php';
+                    $verification_token = bin2hex(random_bytes(32));
+                    $verification_expiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-                $stmt = $pdo->prepare("UPDATE users SET email_verification_token = ?, email_verification_expiry = ? WHERE id = ?");
-                $stmt->execute([$verification_token, $verification_expiry, $userId]);
+                    $stmt = $pdo->prepare("UPDATE users SET email_verification_token = ?, email_verification_expiry = ?, last_verification_sent = NOW(), verification_attempts = 1 WHERE id = ?");
+                    $stmt->execute([$verification_token, $verification_expiry, $userId]);
 
-                $verification_link = SITE_URL . "auth/verify-email.php?token=" . $verification_token;
-                $emailSent = sendVerificationEmail($email, $name, $verification_link);
+                    $verification_link = SITE_URL . "auth/verify-email.php?token=" . $verification_token;
+                    $emailSent = sendVerificationEmail($email, $name, $verification_link);
 
-                if ($emailSent) {
-                    $success = 'Registrasi berhasil! Cek email Anda untuk verifikasi akun. Periksa folder spam jika tidak ada di inbox.';
-                } else {
-                    $success = 'Registrasi berhasil! Email verifikasi gagal dikirim. Silakan login dan request verifikasi ulang.';
+                    if ($emailSent) {
+                        $_SESSION['pending_verification_email'] = $email;
+                        $_SESSION['pending_verification_name'] = $name;
+                        redirect('/auth/verification-pending.php');
+                    } else {
+                        $success = 'Registrasi berhasil! Email verifikasi gagal dikirim. Silakan coba lagi dari halaman login.';
+                    }
+                } catch (Exception $e) {
+                    error_log('Email verification error: ' . $e->getMessage());
+                    $success = 'Registrasi berhasil! Silakan login untuk melanjutkan.';
                 }
             } else {
                 $error = 'Registrasi gagal. Silakan coba lagi.';
