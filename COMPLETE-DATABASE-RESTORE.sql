@@ -457,13 +457,13 @@ CREATE TABLE `reviews` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `product_id` (`product_id`),
-  KEY `user_id` (`user_id`),
-  KEY `order_id` (`order_id`),
+  KEY `idx_product` (`product_id`),
+  KEY `idx_user` (`user_id`),
+  KEY `idx_order` (`order_id`),
   KEY `idx_approved` (`is_approved`),
-  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL
+  CONSTRAINT `fk_reviews_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
