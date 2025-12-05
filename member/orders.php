@@ -7,7 +7,33 @@ if (!isLoggedIn()) {
 
 $user = getCurrentUser();
 
-$stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
+// Auto-cancel expired orders
+$pdo->exec("
+    UPDATE orders 
+    SET payment_status = 'expired' 
+    WHERE payment_status = 'pending' 
+    AND expired_at IS NOT NULL 
+    AND expired_at < NOW()
+");
+
+// Get pending orders (unpaid, not expired)
+$stmt = $pdo->prepare("
+    SELECT * FROM orders 
+    WHERE user_id = ? 
+    AND payment_status = 'pending' 
+    AND (expired_at IS NULL OR expired_at > NOW())
+    ORDER BY created_at DESC
+");
+$stmt->execute([$_SESSION['user_id']]);
+$pendingOrders = $stmt->fetchAll();
+
+// Get all other orders
+$stmt = $pdo->prepare("
+    SELECT * FROM orders 
+    WHERE user_id = ? 
+    AND (payment_status != 'pending' OR payment_status = 'expired')
+    ORDER BY created_at DESC
+");
 $stmt->execute([$_SESSION['user_id']]);
 $orders = $stmt->fetchAll();
 
