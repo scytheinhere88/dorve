@@ -280,8 +280,18 @@ include __DIR__ . '/../includes/header.php';
                 <div class="order-card">
                     <div class="order-header">
                         <div>
-                            <div class="order-number"><?php echo htmlspecialchars($order['order_number']); ?></div>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <div class="order-number"><?php echo htmlspecialchars($order['order_number']); ?></div>
+                                <button onclick="copyOrderId('<?php echo htmlspecialchars($order['order_number']); ?>')" 
+                                        style="padding: 4px 12px; background: #E5E7EB; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: #374151;"
+                                        title="Copy Order ID">
+                                    📋 Copy ID
+                                </button>
+                            </div>
                             <div class="order-date">Ordered on <?php echo date('F d, Y', strtotime($order['created_at'])); ?></div>
+                            <div style="font-size: 12px; color: #9CA3AF; margin-top: 4px;">
+                                Order ID: <code style="background: #F3F4F6; padding: 2px 6px; border-radius: 4px; font-weight: 600;">#<?php echo $order['id']; ?></code>
+                            </div>
                         </div>
                         <div class="order-status">
                             <span class="status-badge status-<?php echo $order['payment_status']; ?>">
