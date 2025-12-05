@@ -35,25 +35,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'save_shipping') {
+    if ($action === 'save_biteship') {
         try {
             $settings = [
-                'shipping_aggregator' => $_POST['shipping_aggregator'] ?? 'manual',
-                'bitship_api_key' => trim($_POST['bitship_api_key'] ?? ''),
-                'bitship_enabled' => isset($_POST['bitship_enabled']) ? '1' : '0',
-                'shipper_api_key' => trim($_POST['shipper_api_key'] ?? ''),
-                'shipper_enabled' => isset($_POST['shipper_enabled']) ? '1' : '0',
+                'biteship_enabled' => isset($_POST['biteship_enabled']) ? '1' : '0',
+                'biteship_api_key' => trim($_POST['biteship_api_key'] ?? ''),
+                'biteship_environment' => $_POST['biteship_environment'] ?? 'production',
+                'biteship_webhook_secret' => trim($_POST['biteship_webhook_secret'] ?? ''),
+                'biteship_default_couriers' => trim($_POST['biteship_default_couriers'] ?? 'jne,jnt,sicepat,anteraja,idexpress'),
+                'store_name' => trim($_POST['store_name'] ?? ''),
+                'store_phone' => trim($_POST['store_phone'] ?? ''),
+                'store_address' => trim($_POST['store_address'] ?? ''),
+                'store_city' => trim($_POST['store_city'] ?? ''),
+                'store_province' => trim($_POST['store_province'] ?? ''),
+                'store_postal_code' => trim($_POST['store_postal_code'] ?? ''),
             ];
 
             foreach ($settings as $key => $value) {
-                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, value) VALUES (?, ?)
-                                      ON DUPLICATE KEY UPDATE value = ?");
+                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
+                                      ON DUPLICATE KEY UPDATE setting_value = ?");
                 $stmt->execute([$key, $value, $value]);
             }
 
-            $success = 'Shipping API settings saved successfully!';
+            $success = 'Biteship settings saved successfully!';
         } catch (PDOException $e) {
             $error = 'Error saving settings: ' . $e->getMessage();
+        }
+    }
+    
+    if ($action === 'test_biteship') {
+        try {
+            require_once __DIR__ . '/../../includes/BiteshipClient.php';
+            $client = new BiteshipClient();
+            
+            // Test with a simple area search
+            $result = $client->getAreas('Jakarta');
+            
+            if ($result['success']) {
+                $success = 'Biteship connection successful! API is working correctly.';
+            } else {
+                $error = 'Biteship connection failed: ' . ($result['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $error = 'Biteship test error: ' . $e->getMessage();
         }
     }
 
