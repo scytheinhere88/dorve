@@ -880,30 +880,101 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Hero Slider -->
 <div class="hero-slider">
-    <div class="hero-slide active" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/public/images/Dorve1.png') center/cover;">
-        <div class="hero-content">
-            <h1 class="hero-title">Koleksi Spring Terbaru</h1>
-            <p class="hero-subtitle">Temukan desain terkini yang dibuat dengan keanggunan dan presisi</p>
-            <a href="/pages/new-collection.php" class="hero-btn">Jelajahi Sekarang</a>
+    <?php if (!empty($slider_banners)): ?>
+        <?php foreach ($slider_banners as $index => $banner): ?>
+            <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('<?php echo htmlspecialchars($banner['image_url']); ?>') center/cover;">
+                <div class="hero-content">
+                    <?php if ($banner['title']): ?>
+                        <h1 class="hero-title"><?php echo htmlspecialchars($banner['title']); ?></h1>
+                    <?php endif; ?>
+                    <?php if ($banner['subtitle']): ?>
+                        <p class="hero-subtitle"><?php echo htmlspecialchars($banner['subtitle']); ?></p>
+                    <?php endif; ?>
+                    <?php if ($banner['link_url'] && $banner['cta_text']): ?>
+                        <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" class="hero-btn"><?php echo htmlspecialchars($banner['cta_text']); ?></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <!-- Default Banner if no banners in database -->
+        <div class="hero-slide active" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/public/images/Dorve1.png') center/cover;">
+            <div class="hero-content">
+                <h1 class="hero-title">Welcome to Dorve House</h1>
+                <p class="hero-subtitle">Discover Latest Fashion Collection</p>
+                <a href="/pages/all-products.php" class="hero-btn">Shop Now</a>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
+</div>
 
-    <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/public/images/Dorve2.png') center/cover;">
-        <div class="hero-content">
-            <h1 class="hero-title">Elegan Abadi</h1>
-            <p class="hero-subtitle">Koleksi premium berkualitas untuk wanita modern</p>
-            <a href="/pages/all-products.php" class="hero-btn">Belanja Semua</a>
-        </div>
-    </div>
-
-    <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/public/images/Dorve3.png') center/cover;">
-        <div class="hero-content">
-            <h1 class="hero-title">Dibuat Dengan Cinta</h1>
-            <p class="hero-subtitle">Setiap produk menceritakan dedikasi dan seni yang sempurna</p>
-            <a href="/pages/our-story.php" class="hero-btn">Kisah Kami</a>
-        </div>
+<!-- Popup Banner Modal -->
+<?php if ($popup_banner): ?>
+<div id="bannerPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.4s ease;">
+    <div style="position: relative; max-width: 900px; width: 100%; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: slideUp 0.5s ease;">
+        <button onclick="closePopup()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 24px; line-height: 1; z-index: 10; transition: all 0.3s; font-weight: bold;" onmouseover="this.style.background='rgba(0,0,0,0.9)'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='rgba(0,0,0,0.7)'; this.style.transform='rotate(0deg)'">
+            ×
+        </button>
+        <a href="<?php echo htmlspecialchars($popup_banner['link_url']); ?>" onclick="closePopup()">
+            <img src="<?php echo htmlspecialchars($popup_banner['image_url']); ?>" 
+                 alt="<?php echo htmlspecialchars($popup_banner['title']); ?>" 
+                 style="width: 100%; height: auto; display: block; max-height: 80vh; object-fit: contain;">
+        </a>
+        <?php if ($popup_banner['cta_text']): ?>
+            <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);">
+                <a href="<?php echo htmlspecialchars($popup_banner['link_url']); ?>" 
+                   onclick="closePopup()" 
+                   style="display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%); color: white; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 50px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transition: all 0.3s;"
+                   onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)'">
+                    <?php echo htmlspecialchars($popup_banner['cta_text']); ?>
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
+
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
+<script>
+// Auto show popup after 3 seconds
+setTimeout(function() {
+    if (!sessionStorage.getItem('popupShown')) {
+        document.getElementById('bannerPopup').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        sessionStorage.setItem('popupShown', 'true');
+    }
+}, 3000);
+
+function closePopup() {
+    document.getElementById('bannerPopup').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close when clicking outside
+document.getElementById('bannerPopup')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePopup();
+    }
+});
+
+// Close with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePopup();
+    }
+});
+</script>
+<?php endif; ?>
 
 <!-- SEO Section 1: Brand Story (Top Section) -->
 <section class="brand-story-section">
