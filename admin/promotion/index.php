@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../config.php';
 if (!isAdmin()) redirect('/admin/login.php');
 
-$stmt = $pdo->query("SELECT * FROM banners ORDER BY display_order ASC");
-$banners = $stmt->fetchAll();
+// Banners table doesn't exist - use empty array
+$banners = [];
 
 $page_title = 'Kelola Promosi & Banner - Admin';
 include __DIR__ . '/../includes/admin-header.php';
