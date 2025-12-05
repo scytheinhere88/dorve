@@ -620,6 +620,38 @@ include __DIR__ . '/../includes/header.php';
         }
         <?php endif; ?>
     });
+    
+    // Size Guide Modal
+    function openSizeGuide() {
+        document.getElementById('sizeGuideModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSizeGuide() {
+        document.getElementById('sizeGuideModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('sizeGuideModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeSizeGuide();
+        }
+    });
 </script>
+
+<!-- Size Guide Modal -->
+<?php if (!empty($product['size_guide'])): ?>
+<div id="sizeGuideModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="position: relative; max-width: 90%; max-height: 90%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <button onclick="closeSizeGuide()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 24px; line-height: 1; z-index: 10; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,0,0,0.9)'" onmouseout="this.style.background='rgba(0,0,0,0.7)'">
+            ×
+        </button>
+        <img src="<?php echo htmlspecialchars($product['size_guide']); ?>" 
+             alt="Size Guide" 
+             style="width: 100%; height: auto; display: block; max-height: 90vh; object-fit: contain;">
+    </div>
+</div>
+<?php endif; ?>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
