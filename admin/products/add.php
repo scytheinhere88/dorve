@@ -53,25 +53,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $product_id = $pdo->lastInsertId();
 
-            // Handle main image upload
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            // Handle multiple image uploads (1-5 images)
+            if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
                 $upload_dir = __DIR__ . '/../../uploads/products/';
                 if (!is_dir($upload_dir)) {
                     mkdir($upload_dir, 0777, true);
                 }
 
-                $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
                 $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+                $uploaded_count = 0;
+                $first_image = null;
 
-                if (in_array($ext, $allowed)) {
-                    $filename = 'product_' . $product_id . '_' . time() . '.' . $ext;
-                    $filepath = $upload_dir . $filename;
-
-                    if (move_uploaded_file($_FILES['image']['tmp_name'], $filepath)) {
-                        $image_path = '/uploads/products/' . $filename;
-                        $stmt = $pdo->prepare("UPDATE products SET image = ? WHERE id = ?");
-                        $stmt->execute([$image_path, $product_id]);
+                // Loop through each uploaded file
+                foreach ($_FILES['images']['name'] as $key => $filename) {
+                    // Skip if no file or error
+                    if (empty($filename) || $_FILES['images']['error'][$key] !== UPLOAD_ERR_OK) {
+                        continue;
                     }
+
+                    // Limit to 5 images
+                    if ($uploaded_count >= 5) {
+                        break;
+                    }
+
+                    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                    
+                    if (in_array($ext, $allowed)) {
+                        $new_filename = 'product_' . $product_id . '_' . time() . '_' . $uploaded_count . '.' . $ext;
+                        $filepath = $upload_dir . $new_filename;
+
+                        if (move_uploaded_file($_FILES['images']['tmp_name'][$key], $filepath)) {
+                            $image_path = '/uploads/products/' . $new_filename;
+                            
+                            // First image becomes primary
+                            $is_primary = ($uploaded_count === 0) ? 1 : 0;
+                            
+                            // Insert into product_images table
+                            $stmt = $pdo->prepare("
+                                INSERT INTO product_images (product_id, image_path, is_primary, sort_order)
+                                VALUES (?, ?, ?, ?)
+                            ");
+                            $stmt->execute([$product_id, $image_path, $is_primary, $uploaded_count + 1]);
+                            
+                            if ($uploaded_count === 0) {
+                                $first_image = $image_path;
+                            }
+                            
+                            $uploaded_count++;
+                        }
+                    }
+                }
+
+                // Update main product image field with first uploaded image
+                if ($first_image) {
+                    $stmt = $pdo->prepare("UPDATE products SET image = ? WHERE id = ?");
+                    $stmt->execute([$first_image, $product_id]);
                 }
             }
 
