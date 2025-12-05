@@ -139,9 +139,21 @@ if (!isAdmin()) {
             $errorCount = 0;
             $successCount = 0;
 
+            // STEP 0: Drop existing tables for clean migration
+            try {
+                $pdo->exec("DROP TABLE IF EXISTS `voucher_usage`");
+                $pdo->exec("DROP TABLE IF EXISTS `user_vouchers`");
+                $pdo->exec("DROP TABLE IF EXISTS `vouchers`");
+                $results[] = ['success' => true, 'step' => 'Clean Old Tables', 'message' => 'Old tables dropped (if existed)'];
+                $successCount++;
+            } catch (Exception $e) {
+                $results[] = ['success' => false, 'step' => 'Clean Old Tables', 'message' => $e->getMessage()];
+                $errorCount++;
+            }
+
             // STEP 1: Create vouchers table
             try {
-                $sql = "CREATE TABLE IF NOT EXISTS `vouchers` (
+                $sql = "CREATE TABLE `vouchers` (
                     `id` INT AUTO_INCREMENT PRIMARY KEY,
                     `code` VARCHAR(50) NOT NULL UNIQUE,
                     `name` VARCHAR(255) NOT NULL,
