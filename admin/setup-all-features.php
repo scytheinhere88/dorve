@@ -133,11 +133,12 @@ try {
 }
 echo "</div>";
 
-// 3. Setup Category Images
-echo "<div class='box'><h2>3. Category Images</h2>";
+// 3. Setup Category Images & Size Guides
+echo "<div class='box'><h2>3. Category Images & Size Guides</h2>";
 try {
     $stmt = $pdo->query("DESCRIBE categories");
     $columns = array_column($stmt->fetchAll(), 'Field');
+    
     if (!in_array('image', $columns)) {
         $pdo->exec("ALTER TABLE categories ADD COLUMN image VARCHAR(500) NULL AFTER slug");
         echo "<p class='success'>✓ image column added to categories</p>";
@@ -146,10 +147,24 @@ try {
         echo "<p class='success'>✓ image column exists in categories</p>";
     }
     
+    if (!in_array('size_guide', $columns)) {
+        $pdo->exec("ALTER TABLE categories ADD COLUMN size_guide VARCHAR(500) NULL AFTER image");
+        echo "<p class='success'>✓ size_guide column added to categories</p>";
+        $success_count++;
+    } else {
+        echo "<p class='success'>✓ size_guide column exists in categories</p>";
+    }
+    
     $upload_dir = __DIR__ . '/../uploads/categories/';
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0777, true);
         echo "<p class='success'>✓ Created uploads/categories/ directory</p>";
+    }
+    
+    $upload_dir = __DIR__ . '/../uploads/size-guides/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+        echo "<p class='success'>✓ Created uploads/size-guides/ directory</p>";
     }
 } catch (Exception $e) {
     echo "<p class='error'>✗ Error: " . $e->getMessage() . "</p>";
