@@ -192,8 +192,13 @@ try {
         'store_country' => 'ID'
     ];
     
+    // Check column name first
+    $stmt = $pdo->query("DESCRIBE settings");
+    $settingsColumns = array_column($stmt->fetchAll(), 'Field');
+    $valueColumn = in_array('setting_value', $settingsColumns) ? 'setting_value' : 'value';
+    
     foreach ($settings as $key => $value) {
-        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, $valueColumn) VALUES (?, ?) ON DUPLICATE KEY UPDATE $valueColumn = VALUES($valueColumn)");
         $stmt->execute([$key, $value]);
     }
     echo "<p class='success'>✓ Biteship settings configured</p>";
